@@ -1,7 +1,13 @@
-import { useState } from 'react'
+// Assets
 import reactLogo from './assets/react.svg'
 import viteLogo from '/vite.svg'
+
+// Libs
 import clsx from 'clsx';
+import { useState } from 'react'
+
+// Components
+import Hero from './components/sections/Hero'
 
 function App() {
   const [count, setCount] = useState(0)
@@ -28,6 +34,7 @@ function App() {
       <p className="read-the-docs">
         Click on the Vite and React logos to learn more
       </p>
+      <Hero />
     </>
   )
 }
