@@ -1,0 +1,40 @@
+@import "tailwindcss";
+
+/* Global stylles */
+html {
+  scroll-behavior: smooth;
+}
+
+.container {
+  margin: 8rem auto;
+  max-width: 1350px;
+  padding-right: 1rem;
+  padding-left: 1rem;
+}
+
+.debug {
+  border: 1px solid red;
+}
+
+
+/* Custom scroll bar */
+
+/* width */
+::-webkit-scrollbar {
+  width: 10px;
+}
+
+/* Track */
+::-webkit-scrollbar-track {
+  background: var(--color-white);
+}
+
+/* Handle */
+::-webkit-scrollbar-thumb {
+  background: var(--color-gold);
+}
+
+/* Handle on hover */
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-blue);
+}
