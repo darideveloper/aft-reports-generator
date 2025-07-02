@@ -1,5 +1,6 @@
 // Components
-import Button from '../ui/Butfon'
+import Button from '../ui/Button'
+import Formulario from '../sections/Formulario'
 
 // Libs
 import { clsx } from 'clsx'
@@ -15,8 +16,8 @@ export default function Hero() {
         'h-screen'
       )}
     >
-      <h1>Hero</h1>
-      <Button />
+           <Formulario />  
+
     </div>
   )
 }
