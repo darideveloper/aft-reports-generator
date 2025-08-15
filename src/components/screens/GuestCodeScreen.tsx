@@ -19,7 +19,7 @@ export const GuestCodeScreen: React.FC<GuestCodeScreenProps> = ({
   const [guestCode, setLocalGuestCode] = useState(guestCodeResponse?.guestCode || '');
   const [error, setError] = useState('');
   const [isValidating, setIsValidating] = useState(false);
-  const [validationMessage, setValidationMessage] = useState('');
+  const [isValid, setIsValid] = useState(false);
 
   const handleValidate = async () => {
     if (!guestCode.trim()) {
@@ -29,21 +29,17 @@ export const GuestCodeScreen: React.FC<GuestCodeScreenProps> = ({
 
     setIsValidating(true);
     setError('');
-    setValidationMessage('');
 
     try {
-      const isValid = await validateInvitationCode(guestCode);
+      const codeIsValid = await validateInvitationCode(guestCode);
+      setIsValid(codeIsValid);
       
-      if (isValid) {
-        setValidationMessage('✅ Código válido');
-        setError('');
-      } else {
-        setValidationMessage('❌ Código inválido');
-        // Don't set error state to avoid duplicate messages
+      if (!codeIsValid) {
+        setError('El código de invitado no es válido');
       }
     } catch (error) {
-      setValidationMessage('❌ Error al validar');
       setError('Error al validar el código. Inténtalo de nuevo.');
+      setIsValid(false);
     } finally {
       setIsValidating(false);
     }
@@ -54,6 +50,12 @@ export const GuestCodeScreen: React.FC<GuestCodeScreenProps> = ({
       setError('El código de invitado es obligatorio');
       return;
     }
+    
+    if (!isValid) {
+      setError('Debes validar el código antes de continuar');
+      return;
+    }
+    
     setError('');
     setGuestCode(guestCode);
     onNext();
@@ -64,9 +66,8 @@ export const GuestCodeScreen: React.FC<GuestCodeScreenProps> = ({
     if (error) {
       setError('');
     }
-    if (validationMessage) {
-      setValidationMessage('');
-    }
+    // Reset validation state when user changes input
+    setIsValid(false);
   };
 
   return (
@@ -102,15 +103,8 @@ export const GuestCodeScreen: React.FC<GuestCodeScreenProps> = ({
                 {isValidating ? 'Validando...' : 'Validar'}
               </button>
             </div>
-            {error && !validationMessage && (
+            {error && (
               <p className="text-destructive text-sm mt-1">{error}</p>
-            )}
-            {validationMessage && (
-              <p className={`text-sm mt-1 ${
-                validationMessage.includes('✅') ? 'text-green-600' : 'text-destructive'
-              }`}>
-                {validationMessage}
-              </p>
             )}
           </div>
         </div>
@@ -129,10 +123,19 @@ export const GuestCodeScreen: React.FC<GuestCodeScreenProps> = ({
             </span>
             <button
               onClick={handleNext}
-              className="px-6 py-3 rounded-lg transition-colors focus:ring-2 focus:ring-ring focus:ring-offset-2"
+              disabled={!isValid}
+              className="px-6 py-3 rounded-lg transition-colors focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
               style={{ backgroundColor: 'var(--primary)', color: 'var(--primary-foreground)' }}
-              onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'var(--secondary)'}
-              onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'var(--primary)'}
+              onMouseEnter={(e) => {
+                if (isValid) {
+                  e.currentTarget.style.backgroundColor = 'var(--secondary)';
+                }
+              }}
+              onMouseLeave={(e) => {
+                if (isValid) {
+                  e.currentTarget.style.backgroundColor = 'var(--primary)';
+                }
+              }}
             >
               Continuar
             </button>
