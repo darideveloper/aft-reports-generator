@@ -54,7 +54,9 @@ interface FormStore {
   canProceed: () => boolean;
   resetForm: () => void;
   getCurrentScreenQuestions: () => Question[];
-  getCurrentScreenData: () => QuestionGroup;
+  getCurrentScreenData: () => QuestionGroup | null;
+  isSurveyInfoScreen: () => boolean;
+  getTotalScreens: () => number;
 }
 
 const survey: Survey = {
@@ -407,7 +409,10 @@ export const useFormStore = create<FormStore>((set, get) => ({
 
   nextScreen: () => {
     const { currentScreen, survey } = get();
-    if (currentScreen < survey.question_groups.length - 1) {
+    if (currentScreen === 0) {
+      // Move from survey info to first question group
+      set({ currentScreen: 1 });
+    } else if (currentScreen < survey.question_groups.length) {
       set({ currentScreen: currentScreen + 1 });
     } else {
       set({ isComplete: true });
@@ -423,7 +428,13 @@ export const useFormStore = create<FormStore>((set, get) => ({
 
   canProceed: () => {
     const { currentScreen, survey, responses } = get();
-    const currentScreenData = survey.question_groups[currentScreen];
+    
+    // Survey info screen doesn't require validation
+    if (currentScreen === 0) {
+      return true;
+    }
+    
+    const currentScreenData = survey.question_groups[currentScreen - 1]; // Adjust index
     
     // Check if all required questions on the current screen are answered
     for (const question of currentScreenData.questions) {
@@ -438,13 +449,35 @@ export const useFormStore = create<FormStore>((set, get) => ({
 
   getCurrentScreenQuestions: () => {
     const { currentScreen, survey } = get();
-    const currentScreenData = survey.question_groups[currentScreen];
+    
+    // Survey info screen has no questions
+    if (currentScreen === 0) {
+      return [];
+    }
+    
+    const currentScreenData = survey.question_groups[currentScreen - 1]; // Adjust index
     return currentScreenData.questions;
   },
 
   getCurrentScreenData: () => {
     const { currentScreen, survey } = get();
-    return survey.question_groups[currentScreen];
+    
+    // Survey info screen has no question group data
+    if (currentScreen === 0) {
+      return null;
+    }
+    
+    return survey.question_groups[currentScreen - 1]; // Adjust index
+  },
+
+  isSurveyInfoScreen: () => {
+    const { currentScreen, survey } = get();
+    return currentScreen === 0;
+  },
+
+  getTotalScreens: () => {
+    const { survey } = get();
+    return survey.question_groups.length + 1; // +1 for survey info screen
   },
 
   resetForm: () => {
