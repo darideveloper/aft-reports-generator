@@ -22,6 +22,12 @@ export const CompletionScreen: React.FC<CompletionScreenProps> = ({
           Gracias por completar el formulario. Aquí tienes un resumen de tus respuestas:
         </p>
         
+        <div className="bg-primary/10 border border-primary/20 rounded-lg p-4">
+          <p className="text-primary font-medium text-lg">
+            Te contactaremos para enviarte tu informe de resultados
+          </p>
+        </div>
+        
         <div className="text-left space-y-4 bg-gray-50 p-6 rounded-lg">
           {responses.map((response) => {
             const question = surveyQuestions.find(q => q.id === response.questionId);
