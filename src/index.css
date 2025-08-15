@@ -117,4 +117,26 @@
   body {
     @apply bg-background text-foreground;
   }
+  
+  /* Add hover pointer cursor for interactive elements */
+  button,
+  [role="button"],
+  a,
+  [role="link"],
+  input[type="submit"],
+  input[type="button"],
+  input[type="reset"] {
+    cursor: pointer;
+  }
+  
+  /* Ensure links have proper cursor */
+  a:hover,
+  button:hover,
+  [role="button"]:hover,
+  [role="link"]:hover,
+  input[type="submit"]:hover,
+  input[type="button"]:hover,
+  input[type="reset"]:hover {
+    cursor: pointer;
+  }
 }
