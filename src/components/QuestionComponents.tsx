@@ -41,12 +41,7 @@ export const MultiChoiceQuestion: React.FC<QuestionComponentProps> = ({
               checked={value === option.text}
               onChange={(e) => onChange(e.target.value)}
               onBlur={onBlur}
-              className="h-4 w-4 border-gray-300"
-              style={{ 
-                color: 'var(--primary)',
-                '--tw-ring-color': 'var(--primary)',
-                '--tw-ring-offset-color': 'var(--background)'
-              } as React.CSSProperties}
+              className="h-4 w-4 border-gray-300 text-primary focus:ring-primary focus:ring-2 focus:ring-offset-2 focus:ring-offset-background radio-brand-colors"
             />
             <span className="text-gray-700">{option.text}</span>
           </label>

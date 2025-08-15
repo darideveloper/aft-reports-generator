@@ -427,4 +427,77 @@
   .dark * {
     scrollbar-color: var(--primary) var(--muted);
   }
+
+  /* Custom Radio Button Styles using Brand Colors */
+  .radio-brand-colors {
+    accent-color: var(--primary);
+  }
+
+  /* Webkit browsers - Custom radio button dot styling */
+  .radio-brand-colors::-webkit-outer-spin-button,
+  .radio-brand-colors::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+  }
+
+  .radio-brand-colors[type="radio"] {
+    -webkit-appearance: none;
+    appearance: none;
+    background-color: var(--background);
+    border: 2px solid var(--border);
+    border-radius: 50%;
+    width: 16px;
+    height: 16px;
+    position: relative;
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+
+  .radio-brand-colors[type="radio"]:hover {
+    border-color: var(--primary);
+    box-shadow: 0 0 0 2px var(--background), 0 0 0 4px var(--primary);
+  }
+
+  .radio-brand-colors[type="radio"]:checked {
+    border-color: var(--primary);
+    background-color: var(--background);
+  }
+
+  .radio-brand-colors[type="radio"]:checked::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+    box-shadow: 0 0 4px rgba(10, 63, 88, 0.3);
+  }
+
+  .radio-brand-colors[type="radio"]:focus {
+    outline: none;
+    box-shadow: 0 0 0 2px var(--background), 0 0 0 4px var(--primary);
+  }
+
+  /* Dark mode radio button adjustments */
+  .dark .radio-brand-colors[type="radio"] {
+    background-color: var(--background);
+    border-color: var(--border);
+  }
+
+  .dark .radio-brand-colors[type="radio"]:checked::after {
+    background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+    box-shadow: 0 0 4px rgba(189, 213, 205, 0.3);
+  }
+
+  .dark .radio-brand-colors[type="radio"]:hover {
+    border-color: var(--primary);
+    box-shadow: 0 0 0 2px var(--background), 0 0 0 4px var(--primary);
+  }
+
+  .dark .radio-brand-colors[type="radio"]:focus {
+    box-shadow: 0 0 0 2px var(--background), 0 0 0 4px var(--primary);
+  }
 }
