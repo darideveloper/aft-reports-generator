@@ -39,8 +39,8 @@ export const MultiScreenForm: React.FC = () => {
   };
 
   const validateCurrentScreen = () => {
-    // Survey info screen, question group info screens, and guest code screen don't need validation
-    if (isSurveyInfoScreen() || isQuestionGroupInfoScreen() || isGuestCodeScreen()) {
+    // Survey info screen, guest code screen, and question group info screens don't need validation
+    if (isSurveyInfoScreen() || isGuestCodeScreen() || isQuestionGroupInfoScreen()) {
       return true;
     }
 
@@ -83,6 +83,18 @@ export const MultiScreenForm: React.FC = () => {
     );
   }
 
+  // Guest Code Screen
+  if (isGuestCodeScreen()) {
+    return (
+      <GuestCodeScreen
+        currentScreen={currentScreen}
+        totalScreens={getTotalScreens()}
+        onNext={handleNext}
+        onPrevious={handlePrevious}
+      />
+    );
+  }
+
   // Question Group Info Screen
   if (isQuestionGroupInfoScreen()) {
     return (
@@ -91,18 +103,6 @@ export const MultiScreenForm: React.FC = () => {
         totalScreens={getTotalScreens()}
         groupName={currentScreenData?.name || ''}
         groupDetails={currentScreenData?.details || ''}
-        onNext={handleNext}
-        onPrevious={handlePrevious}
-      />
-    );
-  }
-
-  // Guest Code Screen
-  if (isGuestCodeScreen()) {
-    return (
-      <GuestCodeScreen
-        currentScreen={currentScreen}
-        totalScreens={getTotalScreens()}
         onNext={handleNext}
         onPrevious={handlePrevious}
       />

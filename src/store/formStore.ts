@@ -425,13 +425,13 @@ export const useFormStore = create<FormStore>((set, get) => ({
   nextScreen: () => {
     const { currentScreen, survey } = get();
     if (currentScreen === 0) {
-      // Move from survey info to first question group info
+      // Move from survey info to guest code screen
       set({ currentScreen: 1 });
-    } else if (currentScreen < (survey.question_groups.length * 2)) {
+    } else if (currentScreen === 1) {
+      // Move from guest code screen to first question group info
+      set({ currentScreen: 2 });
+    } else if (currentScreen < (2 + survey.question_groups.length * 2)) {
       set({ currentScreen: currentScreen + 1 });
-    } else if (currentScreen === (survey.question_groups.length * 2)) {
-      // Move from guest code screen to completion
-      set({ isComplete: true });
     } else {
       set({ isComplete: true });
     }
@@ -447,13 +447,13 @@ export const useFormStore = create<FormStore>((set, get) => ({
   canProceed: () => {
     const { currentScreen, responses } = get();
     
-    // Survey info screen and question group info screens don't require validation
-    if (currentScreen === 0 || currentScreen % 2 === 1) {
+    // Survey info screen, guest code screen, and question group info screens don't require validation
+    if (currentScreen === 0 || currentScreen === 1 || currentScreen % 2 === 0) {
       return true;
     }
     
     // Only question screens need validation
-    const questionGroupIndex = Math.floor((currentScreen - 2) / 2);
+    const questionGroupIndex = Math.floor((currentScreen - 3) / 2);
     const currentScreenData = get().survey.question_groups[questionGroupIndex];
     
     // Check if all required questions on the current screen are answered
@@ -470,14 +470,14 @@ export const useFormStore = create<FormStore>((set, get) => ({
   getCurrentScreenQuestions: () => {
     const { currentScreen } = get();
     
-    // Survey info screen has no questions
-    if (currentScreen === 0) {
+    // Survey info screen and guest code screen have no questions
+    if (currentScreen === 0 || currentScreen === 1) {
       return [];
     }
     
-    // Only question screens (even numbers) have questions
-    if (currentScreen % 2 === 0) {
-      const questionGroupIndex = Math.floor((currentScreen - 2) / 2);
+    // Only question screens (odd numbers starting from 3) have questions
+    if (currentScreen > 1 && currentScreen % 2 === 1) {
+      const questionGroupIndex = Math.floor((currentScreen - 3) / 2);
       const currentScreenData = get().survey.question_groups[questionGroupIndex];
       return currentScreenData.questions;
     }
@@ -488,13 +488,13 @@ export const useFormStore = create<FormStore>((set, get) => ({
   getCurrentScreenData: () => {
     const { currentScreen } = get();
     
-    // Survey info screen has no question group data
-    if (currentScreen === 0) {
+    // Survey info screen and guest code screen have no question group data
+    if (currentScreen === 0 || currentScreen === 1) {
       return null;
     }
     
     // Both question group info screens and question screens need the question group data
-    const questionGroupIndex = Math.floor((currentScreen - 1) / 2);
+    const questionGroupIndex = Math.floor((currentScreen - 2) / 2);
     return get().survey.question_groups[questionGroupIndex];
   },
 
@@ -505,35 +505,35 @@ export const useFormStore = create<FormStore>((set, get) => ({
 
   isQuestionGroupInfoScreen: () => {
     const { currentScreen } = get();
-    // Question group info screens are at odd numbers (1, 3, 5, etc.)
-    // Question screens are at even numbers (2, 4, 6, etc.)
-    return currentScreen > 0 && currentScreen % 2 === 1;
+    // Question group info screens are at even numbers starting from 2 (2, 4, 6, etc.)
+    // Question screens are at odd numbers starting from 3 (3, 5, 7, etc.)
+    return currentScreen > 1 && currentScreen % 2 === 0;
   },
 
   isQuestionScreen: () => {
     const { currentScreen } = get();
-    // Question screens are at even numbers (2, 4, 6, etc.)
-    return currentScreen > 0 && currentScreen % 2 === 0;
+    // Question screens are at odd numbers starting from 3 (3, 5, 7, etc.)
+    return currentScreen > 1 && currentScreen % 2 === 1;
   },
 
   isGuestCodeScreen: () => {
-    const { currentScreen, survey } = get();
-    // Guest code screen appears after all question groups
-    return currentScreen === (survey.question_groups.length * 2);
+    const { currentScreen } = get();
+    // Guest code screen is at index 1
+    return currentScreen === 1;
   },
 
   getCurrentQuestionGroupIndex: () => {
     const { currentScreen } = get();
-    // For question group info screens: (currentScreen - 1) / 2
-    // For question screens: (currentScreen - 2) / 2
-    if (currentScreen === 0) return -1;
-    return Math.floor((currentScreen - 1) / 2);
+    // For question group info screens: (currentScreen - 2) / 2
+    // For question screens: (currentScreen - 3) / 2
+    if (currentScreen <= 1) return -1;
+    return Math.floor((currentScreen - 2) / 2);
   },
 
   getTotalScreens: () => {
     const { survey } = get();
-    // Survey info (1) + Question group info (question_groups.length) + Question screens (question_groups.length) + Guest code screen (1)
-    return 1 + (survey.question_groups.length * 2) + 1;
+    // Survey info (1) + Guest code (1) + Question group info (question_groups.length) + Question screens (question_groups.length)
+    return 2 + (survey.question_groups.length * 2);
   },
 
   resetForm: () => {
