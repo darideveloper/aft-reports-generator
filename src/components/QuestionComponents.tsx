@@ -1,5 +1,6 @@
 import React from 'react';
 import type { Question } from '../store/formStore';
+import { MarkdownRenderer } from './ui/markdown-renderer';
 
 interface QuestionComponentProps {
   question: Question;
@@ -16,9 +17,19 @@ export const MultiChoiceQuestion: React.FC<QuestionComponentProps> = ({
 }) => {
   return (
     <div className="space-y-3">
-      <h3 className="text-lg font-medium text-gray-900">{question.text}</h3>
+      <h3 className="text-lg font-medium text-gray-900">
+        <MarkdownRenderer 
+          content={question.text} 
+          className="prose prose-lg max-w-none"
+        />
+      </h3>
       {question.details && (
-        <p className="text-sm text-gray-600">{question.details}</p>
+        <div className="text-sm text-gray-600">
+          <MarkdownRenderer 
+            content={question.details} 
+            className="prose prose-sm max-w-none"
+          />
+        </div>
       )}
       <div className="space-y-2">
         {question.options.map((option) => (

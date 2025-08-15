@@ -110,6 +110,203 @@
   --sidebar-ring: #bdd5cd;
 }
 
+/* Markdown rendering styles */
+.prose {
+  color: var(--foreground);
+  line-height: 1.6;
+}
+
+.prose h1,
+.prose h2,
+.prose h3,
+.prose h4,
+.prose h5,
+.prose h6 {
+  color: var(--foreground);
+  font-weight: 600;
+  line-height: 1.25;
+  margin-top: 1.5em;
+  margin-bottom: 0.5em;
+}
+
+.prose h1 {
+  font-size: 2.25rem;
+}
+
+.prose h2 {
+  font-size: 1.875rem;
+}
+
+.prose h3 {
+  font-size: 1.5rem;
+}
+
+.prose h4 {
+  font-size: 1.25rem;
+}
+
+.prose h5 {
+  font-size: 1.125rem;
+}
+
+.prose h6 {
+  font-size: 1rem;
+}
+
+.prose p {
+  margin-top: 1.25em;
+  margin-bottom: 1.25em;
+}
+
+.prose strong {
+  font-weight: 600;
+  color: var(--foreground);
+}
+
+.prose em {
+  font-style: italic;
+}
+
+.prose ul,
+.prose ol {
+  margin-top: 1.25em;
+  margin-bottom: 1.25em;
+  padding-left: 1.625em;
+}
+
+.prose li {
+  margin-top: 0.5em;
+  margin-bottom: 0.5em;
+}
+
+.prose blockquote {
+  border-left: 4px solid var(--primary);
+  padding-left: 1rem;
+  margin-left: 0;
+  margin-right: 0;
+  font-style: italic;
+  color: var(--muted-foreground);
+}
+
+.prose code {
+  background-color: var(--muted);
+  padding: 0.125rem 0.25rem;
+  border-radius: 0.25rem;
+  font-size: 0.875em;
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Consolas, "Liberation Mono", Menlo, monospace;
+}
+
+.prose pre {
+  background-color: var(--muted);
+  padding: 1rem;
+  border-radius: 0.5rem;
+  overflow-x: auto;
+  margin-top: 1.5em;
+  margin-bottom: 1.5em;
+}
+
+.prose pre code {
+  background-color: transparent;
+  padding: 0;
+}
+
+.prose hr {
+  border: none;
+  border-top: 1px solid var(--border);
+  margin-top: 2em;
+  margin-bottom: 2em;
+}
+
+.prose a {
+  color: var(--primary);
+  text-decoration: underline;
+  text-decoration-color: var(--primary);
+}
+
+.prose a:hover {
+  color: var(--secondary);
+  text-decoration-color: var(--secondary);
+}
+
+/* Prose size variants */
+.prose-sm {
+  font-size: 0.875rem;
+}
+
+.prose-sm h1 { font-size: 1.875rem; }
+.prose-sm h2 { font-size: 1.5rem; }
+.prose-sm h3 { font-size: 1.25rem; }
+.prose-sm h4 { font-size: 1.125rem; }
+.prose-sm h5 { font-size: 1rem; }
+.prose-sm h6 { font-size: 0.875rem; }
+
+.prose-lg {
+  font-size: 1.125rem;
+}
+
+.prose-lg h1 { font-size: 2.5rem; }
+.prose-lg h2 { font-size: 2rem; }
+.prose-lg h3 { font-size: 1.75rem; }
+.prose-lg h4 { font-size: 1.5rem; }
+.prose-lg h5 { font-size: 1.25rem; }
+.prose-lg h6 { font-size: 1.125rem; }
+
+.prose-xl {
+  font-size: 1.25rem;
+}
+
+.prose-xl h1 { font-size: 3rem; }
+.prose-xl h2 { font-size: 2.25rem; }
+.prose-xl h3 { font-size: 2rem; }
+.prose-xl h4 { font-size: 1.75rem; }
+.prose-xl h5 { font-size: 1.5rem; }
+.prose-xl h6 { font-size: 1.25rem; }
+
+/* Dark mode prose adjustments */
+.dark .prose {
+  color: var(--foreground);
+}
+
+.dark .prose h1,
+.dark .prose h2,
+.dark .prose h3,
+.dark .prose h4,
+.dark .prose h5,
+.dark .prose h6 {
+  color: var(--foreground);
+}
+
+.dark .prose strong {
+  color: var(--foreground);
+}
+
+.dark .prose blockquote {
+  border-left-color: var(--primary);
+  color: var(--muted-foreground);
+}
+
+.dark .prose code {
+  background-color: var(--muted);
+}
+
+.dark .prose pre {
+  background-color: var(--muted);
+}
+
+.dark .prose hr {
+  border-top-color: var(--border);
+}
+
+.dark .prose a {
+  color: var(--primary);
+  text-decoration-color: var(--primary);
+}
+
+.dark .prose a:hover {
+  color: var(--secondary);
+  text-decoration-color: var(--secondary);
+}
+
 @layer base {
   * {
     @apply border-border outline-ring/50;

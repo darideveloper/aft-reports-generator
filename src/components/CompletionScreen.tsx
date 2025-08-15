@@ -1,6 +1,6 @@
 import React from 'react';
-import type { FormResponse } from '../store/formStore';
-import type { Question } from '../store/formStore';
+import type { Question, FormResponse } from '../store/formStore';
+import { MarkdownRenderer } from './ui/markdown-renderer';
 
 interface CompletionScreenProps {
   responses: FormResponse[];
@@ -27,7 +27,12 @@ export const CompletionScreen: React.FC<CompletionScreenProps> = ({
             const question = surveyQuestions.find(q => q.id === response.questionId);
             return (
               <div key={response.questionId} className="border-b border-gray-200 pb-3 last:border-b-0">
-                <h4 className="font-medium text-gray-900">{question?.text}</h4>
+                <h4 className="font-medium text-gray-900">
+                  <MarkdownRenderer 
+                    content={question?.text || ''} 
+                    className="prose prose-sm max-w-none"
+                  />
+                </h4>
                 <p className="text-gray-600 mt-1">{response.answer}</p>
               </div>
             );

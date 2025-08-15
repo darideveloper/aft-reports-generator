@@ -1,4 +1,5 @@
 import React from 'react';
+import { MarkdownRenderer } from './ui/markdown-renderer';
 
 interface QuestionGroupInfoScreenProps {
   currentScreen: number;
@@ -42,10 +43,17 @@ export const QuestionGroupInfoScreen: React.FC<QuestionGroupInfoScreenProps> = (
 
       {/* Group Header */}
       <div className="mb-8 text-center">
-        <h2 className="text-3xl font-bold text-gray-900 mb-6">{groupName}</h2>
-        <div className="text-gray-600 text-lg whitespace-pre-line max-h-96 overflow-y-auto custom-scrollbar bg-gray-50 p-6 rounded-lg text-left">
-          {groupDetails}
-        </div>
+        <h2 className="text-2xl font-bold text-gray-900 mb-2">
+          {groupName}
+        </h2>
+        {groupDetails && (
+          <div className="text-gray-600 text-lg">
+            <MarkdownRenderer 
+              content={groupDetails} 
+              className="prose prose-lg max-w-none"
+            />
+          </div>
+        )}
       </div>
 
       {/* Navigation Buttons */}

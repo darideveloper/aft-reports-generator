@@ -1,4 +1,5 @@
 import React from 'react';
+import { MarkdownRenderer } from './ui/markdown-renderer';
 
 interface SurveyInfoScreenProps {
   surveyName: string;
@@ -18,8 +19,11 @@ export const SurveyInfoScreen: React.FC<SurveyInfoScreenProps> = ({
       {/* Survey Header */}
       <div className="mb-8 text-center">
         <h1 className="text-4xl font-bold text-gray-900 mb-6">{surveyName}</h1>
-        <div className="text-sm text-gray-600 whitespace-pre-line max-h-96 overflow-y-auto custom-scrollbar bg-gray-50 p-6 rounded-lg text-left">
-          {surveyInstructions}
+        <div className="text-sm text-gray-600 max-h-96 overflow-y-auto custom-scrollbar bg-gray-50 p-6 rounded-lg text-left">
+          <MarkdownRenderer 
+            content={surveyInstructions} 
+            className="prose prose-sm max-w-none"
+          />
         </div>
       </div>
 

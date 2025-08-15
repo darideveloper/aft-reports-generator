@@ -430,7 +430,7 @@ export const useFormStore = create<FormStore>((set, get) => ({
   },
 
   canProceed: () => {
-    const { currentScreen, survey, responses } = get();
+    const { currentScreen, responses } = get();
     
     // Survey info screen and question group info screens don't require validation
     if (currentScreen === 0 || currentScreen % 2 === 1) {
@@ -439,7 +439,7 @@ export const useFormStore = create<FormStore>((set, get) => ({
     
     // Only question screens need validation
     const questionGroupIndex = Math.floor((currentScreen - 2) / 2);
-    const currentScreenData = survey.question_groups[questionGroupIndex];
+    const currentScreenData = get().survey.question_groups[questionGroupIndex];
     
     // Check if all required questions on the current screen are answered
     for (const question of currentScreenData.questions) {
@@ -453,7 +453,7 @@ export const useFormStore = create<FormStore>((set, get) => ({
   },
 
   getCurrentScreenQuestions: () => {
-    const { currentScreen, survey } = get();
+    const { currentScreen } = get();
     
     // Survey info screen has no questions
     if (currentScreen === 0) {
@@ -463,7 +463,7 @@ export const useFormStore = create<FormStore>((set, get) => ({
     // Only question screens (even numbers) have questions
     if (currentScreen % 2 === 0) {
       const questionGroupIndex = Math.floor((currentScreen - 2) / 2);
-      const currentScreenData = survey.question_groups[questionGroupIndex];
+      const currentScreenData = get().survey.question_groups[questionGroupIndex];
       return currentScreenData.questions;
     }
     
@@ -471,7 +471,7 @@ export const useFormStore = create<FormStore>((set, get) => ({
   },
 
   getCurrentScreenData: () => {
-    const { currentScreen, survey } = get();
+    const { currentScreen } = get();
     
     // Survey info screen has no question group data
     if (currentScreen === 0) {
@@ -480,23 +480,23 @@ export const useFormStore = create<FormStore>((set, get) => ({
     
     // Both question group info screens and question screens need the question group data
     const questionGroupIndex = Math.floor((currentScreen - 1) / 2);
-    return survey.question_groups[questionGroupIndex];
+    return get().survey.question_groups[questionGroupIndex];
   },
 
   isSurveyInfoScreen: () => {
-    const { currentScreen, survey } = get();
+    const { currentScreen } = get();
     return currentScreen === 0;
   },
 
   isQuestionGroupInfoScreen: () => {
-    const { currentScreen, survey } = get();
+    const { currentScreen } = get();
     // Question group info screens are at odd numbers (1, 3, 5, etc.)
     // Question screens are at even numbers (2, 4, 6, etc.)
     return currentScreen > 0 && currentScreen % 2 === 1;
   },
 
   isQuestionScreen: () => {
-    const { currentScreen, survey } = get();
+    const { currentScreen } = get();
     // Question screens are at even numbers (2, 4, 6, etc.)
     return currentScreen > 0 && currentScreen % 2 === 0;
   },

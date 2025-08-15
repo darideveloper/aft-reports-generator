@@ -1,15 +1,15 @@
 import React from 'react';
 import { QuestionRenderer } from './QuestionComponents';
-
-import type { Question } from '../store/formStore';
+import { MarkdownRenderer } from './ui/markdown-renderer';
+import type { Question, FormResponse } from '../store/formStore';
 
 interface QuestionScreenProps {
   currentScreen: number;
   totalScreens: number;
   screenName: string;
-  screenDetails?: string;
+  screenDetails: string;
   questions: Question[];
-  responses: Array<{ questionId: number; answer: string }>;
+  responses: FormResponse[];
   errors: Record<number, string>;
   onAnswerChange: (questionId: number, value: string) => void;
   onNext: () => void;
@@ -59,8 +59,11 @@ export const QuestionScreen: React.FC<QuestionScreenProps> = ({
           {screenName}
         </h2>
         {screenDetails && (
-          <div className="text-gray-600 text-lg whitespace-pre-line">
-            {screenDetails}
+          <div className="text-gray-600 text-lg">
+            <MarkdownRenderer 
+              content={screenDetails} 
+              className="prose prose-lg max-w-none"
+            />
           </div>
         )}
       </div>

@@ -19,7 +19,6 @@ export const MultiScreenForm: React.FC = () => {
     getCurrentScreenData,
     isSurveyInfoScreen,
     isQuestionGroupInfoScreen,
-    isQuestionScreen,
     getTotalScreens
   } = useFormStore();
 
@@ -70,14 +69,6 @@ export const MultiScreenForm: React.FC = () => {
     previousScreen();
   };
 
-  const handleSubmit = () => {
-    if (!validateCurrentScreen()) {
-      return;
-    }
-    
-    nextScreen();
-  };
-
   // Survey Info Screen
   if (isSurveyInfoScreen()) {
     return (
@@ -122,14 +113,14 @@ export const MultiScreenForm: React.FC = () => {
       currentScreen={currentScreen}
       totalScreens={getTotalScreens()}
       screenName={currentScreenData?.name || ''}
-      screenDetails={currentScreenData?.details}
+      screenDetails={currentScreenData?.details || ''}
       questions={currentScreenQuestions}
       responses={responses}
       errors={errors}
       onAnswerChange={handleAnswerChange}
       onNext={handleNext}
       onPrevious={handlePrevious}
-      isLastScreen={currentScreen === (survey.question_groups.length * 2)}
+      isLastScreen={false}
     />
   );
 }; 
