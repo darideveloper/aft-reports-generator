@@ -56,6 +56,9 @@ interface FormStore {
   getCurrentScreenQuestions: () => Question[];
   getCurrentScreenData: () => QuestionGroup | null;
   isSurveyInfoScreen: () => boolean;
+  isQuestionGroupInfoScreen: () => boolean;
+  isQuestionScreen: () => boolean;
+  getCurrentQuestionGroupIndex: () => number;
   getTotalScreens: () => number;
 }
 
@@ -410,9 +413,9 @@ export const useFormStore = create<FormStore>((set, get) => ({
   nextScreen: () => {
     const { currentScreen, survey } = get();
     if (currentScreen === 0) {
-      // Move from survey info to first question group
+      // Move from survey info to first question group info
       set({ currentScreen: 1 });
-    } else if (currentScreen < survey.question_groups.length) {
+    } else if (currentScreen < (survey.question_groups.length * 2)) {
       set({ currentScreen: currentScreen + 1 });
     } else {
       set({ isComplete: true });
@@ -429,12 +432,14 @@ export const useFormStore = create<FormStore>((set, get) => ({
   canProceed: () => {
     const { currentScreen, survey, responses } = get();
     
-    // Survey info screen doesn't require validation
-    if (currentScreen === 0) {
+    // Survey info screen and question group info screens don't require validation
+    if (currentScreen === 0 || currentScreen % 2 === 1) {
       return true;
     }
     
-    const currentScreenData = survey.question_groups[currentScreen - 1]; // Adjust index
+    // Only question screens need validation
+    const questionGroupIndex = Math.floor((currentScreen - 2) / 2);
+    const currentScreenData = survey.question_groups[questionGroupIndex];
     
     // Check if all required questions on the current screen are answered
     for (const question of currentScreenData.questions) {
@@ -455,8 +460,14 @@ export const useFormStore = create<FormStore>((set, get) => ({
       return [];
     }
     
-    const currentScreenData = survey.question_groups[currentScreen - 1]; // Adjust index
-    return currentScreenData.questions;
+    // Only question screens (even numbers) have questions
+    if (currentScreen % 2 === 0) {
+      const questionGroupIndex = Math.floor((currentScreen - 2) / 2);
+      const currentScreenData = survey.question_groups[questionGroupIndex];
+      return currentScreenData.questions;
+    }
+    
+    return [];
   },
 
   getCurrentScreenData: () => {
@@ -467,7 +478,9 @@ export const useFormStore = create<FormStore>((set, get) => ({
       return null;
     }
     
-    return survey.question_groups[currentScreen - 1]; // Adjust index
+    // Both question group info screens and question screens need the question group data
+    const questionGroupIndex = Math.floor((currentScreen - 1) / 2);
+    return survey.question_groups[questionGroupIndex];
   },
 
   isSurveyInfoScreen: () => {
@@ -475,9 +488,31 @@ export const useFormStore = create<FormStore>((set, get) => ({
     return currentScreen === 0;
   },
 
+  isQuestionGroupInfoScreen: () => {
+    const { currentScreen, survey } = get();
+    // Question group info screens are at odd numbers (1, 3, 5, etc.)
+    // Question screens are at even numbers (2, 4, 6, etc.)
+    return currentScreen > 0 && currentScreen % 2 === 1;
+  },
+
+  isQuestionScreen: () => {
+    const { currentScreen, survey } = get();
+    // Question screens are at even numbers (2, 4, 6, etc.)
+    return currentScreen > 0 && currentScreen % 2 === 0;
+  },
+
+  getCurrentQuestionGroupIndex: () => {
+    const { currentScreen } = get();
+    // For question group info screens: (currentScreen - 1) / 2
+    // For question screens: (currentScreen - 2) / 2
+    if (currentScreen === 0) return -1;
+    return Math.floor((currentScreen - 1) / 2);
+  },
+
   getTotalScreens: () => {
     const { survey } = get();
-    return survey.question_groups.length + 1; // +1 for survey info screen
+    // Survey info (1) + Question group info (question_groups.length) + Question screens (question_groups.length)
+    return 1 + (survey.question_groups.length * 2);
   },
 
   resetForm: () => {

@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useFormStore } from '../store/formStore';
 import { SurveyInfoScreen } from './SurveyInfoScreen';
+import { QuestionGroupInfoScreen } from './QuestionGroupInfoScreen';
 import { QuestionScreen } from './QuestionScreen';
 import { CompletionScreen } from './CompletionScreen';
 
@@ -17,6 +18,8 @@ export const MultiScreenForm: React.FC = () => {
     getCurrentScreenQuestions,
     getCurrentScreenData,
     isSurveyInfoScreen,
+    isQuestionGroupInfoScreen,
+    isQuestionScreen,
     getTotalScreens
   } = useFormStore();
 
@@ -35,8 +38,8 @@ export const MultiScreenForm: React.FC = () => {
   };
 
   const validateCurrentScreen = () => {
-    // Survey info screen doesn't need validation
-    if (isSurveyInfoScreen()) {
+    // Survey info screen and question group info screens don't need validation
+    if (isSurveyInfoScreen() || isQuestionGroupInfoScreen()) {
       return true;
     }
 
@@ -87,6 +90,20 @@ export const MultiScreenForm: React.FC = () => {
     );
   }
 
+  // Question Group Info Screen
+  if (isQuestionGroupInfoScreen()) {
+    return (
+      <QuestionGroupInfoScreen
+        currentScreen={currentScreen}
+        totalScreens={getTotalScreens()}
+        groupName={currentScreenData?.name || ''}
+        groupDetails={currentScreenData?.details || ''}
+        onNext={handleNext}
+        onPrevious={handlePrevious}
+      />
+    );
+  }
+
   // Completion Screen
   if (isComplete) {
     const allQuestions = survey.question_groups.flatMap(qg => qg.questions);
@@ -112,7 +129,7 @@ export const MultiScreenForm: React.FC = () => {
       onAnswerChange={handleAnswerChange}
       onNext={handleNext}
       onPrevious={handlePrevious}
-      isLastScreen={currentScreen === survey.question_groups.length}
+      isLastScreen={currentScreen === (survey.question_groups.length * 2)}
     />
   );
 }; 
