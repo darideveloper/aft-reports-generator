@@ -1,5 +1,6 @@
 import React from 'react';
 import type { Question, FormResponse } from '../store/formStore';
+import { useFormStore } from '../store/formStore';
 import { MarkdownRenderer } from './ui/markdown-renderer';
 
 interface CompletionScreenProps {
@@ -13,6 +14,8 @@ export const CompletionScreen: React.FC<CompletionScreenProps> = ({
   surveyQuestions,
   onReset
 }) => {
+  const { guestCodeResponse } = useFormStore();
+  
   return (
     <div className="max-w-2xl mx-auto p-6 bg-white rounded-lg shadow-lg">
       <div className="text-center space-y-6">
@@ -27,6 +30,14 @@ export const CompletionScreen: React.FC<CompletionScreenProps> = ({
             Te contactaremos para enviarte tu informe de resultados
           </p>
         </div>
+        
+        {guestCodeResponse && (
+          <div className="bg-gray-100 border border-gray-200 rounded-lg p-4">
+            <p className="text-gray-700 font-medium">
+              Código de Invitado: <span className="text-primary font-bold">{guestCodeResponse.guestCode}</span>
+            </p>
+          </div>
+        )}
         
         <div className="text-left space-y-4 bg-gray-50 p-6 rounded-lg">
           {responses.map((response) => {

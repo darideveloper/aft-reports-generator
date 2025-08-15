@@ -3,6 +3,7 @@ import { useFormStore } from '../store/formStore';
 import { SurveyInfoScreen } from './SurveyInfoScreen';
 import { QuestionGroupInfoScreen } from './QuestionGroupInfoScreen';
 import { QuestionScreen } from './QuestionScreen';
+import { GuestCodeScreen } from './GuestCodeScreen';
 import { CompletionScreen } from './CompletionScreen';
 
 export const MultiScreenForm: React.FC = () => {
@@ -19,6 +20,7 @@ export const MultiScreenForm: React.FC = () => {
     getCurrentScreenData,
     isSurveyInfoScreen,
     isQuestionGroupInfoScreen,
+    isGuestCodeScreen,
     getTotalScreens
   } = useFormStore();
 
@@ -37,8 +39,8 @@ export const MultiScreenForm: React.FC = () => {
   };
 
   const validateCurrentScreen = () => {
-    // Survey info screen and question group info screens don't need validation
-    if (isSurveyInfoScreen() || isQuestionGroupInfoScreen()) {
+    // Survey info screen, question group info screens, and guest code screen don't need validation
+    if (isSurveyInfoScreen() || isQuestionGroupInfoScreen() || isGuestCodeScreen()) {
       return true;
     }
 
@@ -89,6 +91,18 @@ export const MultiScreenForm: React.FC = () => {
         totalScreens={getTotalScreens()}
         groupName={currentScreenData?.name || ''}
         groupDetails={currentScreenData?.details || ''}
+        onNext={handleNext}
+        onPrevious={handlePrevious}
+      />
+    );
+  }
+
+  // Guest Code Screen
+  if (isGuestCodeScreen()) {
+    return (
+      <GuestCodeScreen
+        currentScreen={currentScreen}
+        totalScreens={getTotalScreens()}
         onNext={handleNext}
         onPrevious={handlePrevious}
       />

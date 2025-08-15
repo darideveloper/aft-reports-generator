@@ -39,16 +39,22 @@ export interface FormResponse {
   answer: string;
 }
 
+export interface GuestCodeResponse {
+  guestCode: string;
+}
+
 interface FormStore {
   currentScreen: number;
   survey: Survey;
   responses: FormResponse[];
+  guestCodeResponse: GuestCodeResponse | null;
   isComplete: boolean;
   
   // Actions
   setCurrentScreen: (screen: number) => void;
   addResponse: (response: FormResponse) => void;
   updateResponse: (questionId: number, answer: string) => void;
+  setGuestCode: (guestCode: string) => void;
   nextScreen: () => void;
   previousScreen: () => void;
   canProceed: () => boolean;
@@ -58,6 +64,7 @@ interface FormStore {
   isSurveyInfoScreen: () => boolean;
   isQuestionGroupInfoScreen: () => boolean;
   isQuestionScreen: () => boolean;
+  isGuestCodeScreen: () => boolean;
   getCurrentQuestionGroupIndex: () => number;
   getTotalScreens: () => number;
 }
@@ -385,6 +392,7 @@ export const useFormStore = create<FormStore>((set, get) => ({
   currentScreen: 0,
   survey,
   responses: [],
+  guestCodeResponse: null,
   isComplete: false,
 
   setCurrentScreen: (screen: number) => {
@@ -410,6 +418,10 @@ export const useFormStore = create<FormStore>((set, get) => ({
     get().addResponse({ questionId, answer });
   },
 
+  setGuestCode: (guestCode: string) => {
+    set({ guestCodeResponse: { guestCode } });
+  },
+
   nextScreen: () => {
     const { currentScreen, survey } = get();
     if (currentScreen === 0) {
@@ -417,6 +429,9 @@ export const useFormStore = create<FormStore>((set, get) => ({
       set({ currentScreen: 1 });
     } else if (currentScreen < (survey.question_groups.length * 2)) {
       set({ currentScreen: currentScreen + 1 });
+    } else if (currentScreen === (survey.question_groups.length * 2)) {
+      // Move from guest code screen to completion
+      set({ isComplete: true });
     } else {
       set({ isComplete: true });
     }
@@ -501,6 +516,12 @@ export const useFormStore = create<FormStore>((set, get) => ({
     return currentScreen > 0 && currentScreen % 2 === 0;
   },
 
+  isGuestCodeScreen: () => {
+    const { currentScreen, survey } = get();
+    // Guest code screen appears after all question groups
+    return currentScreen === (survey.question_groups.length * 2);
+  },
+
   getCurrentQuestionGroupIndex: () => {
     const { currentScreen } = get();
     // For question group info screens: (currentScreen - 1) / 2
@@ -511,14 +532,15 @@ export const useFormStore = create<FormStore>((set, get) => ({
 
   getTotalScreens: () => {
     const { survey } = get();
-    // Survey info (1) + Question group info (question_groups.length) + Question screens (question_groups.length)
-    return 1 + (survey.question_groups.length * 2);
+    // Survey info (1) + Question group info (question_groups.length) + Question screens (question_groups.length) + Guest code screen (1)
+    return 1 + (survey.question_groups.length * 2) + 1;
   },
 
   resetForm: () => {
     set({
       currentScreen: 0,
       responses: [],
+      guestCodeResponse: null,
       isComplete: false
     });
   }
