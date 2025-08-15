@@ -2,6 +2,27 @@
 
 This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
 
+## Environment Variables
+
+To use the invitation code validation API, create a `.env` file in the root directory with the following variables:
+
+```bash
+# API Configuration
+VITE_API_ENDPOINT=https://aft-dashboard.apps.darideveloper.com/api
+VITE_API_KEY=your_api_key_here
+```
+
+**Note:** All environment variables must be prefixed with `VITE_` to be accessible in the client-side code.
+
+## Brand Colors
+
+This application uses a consistent brand color palette defined in CSS custom properties. See [BRAND_COLORS.md](./BRAND_COLORS.md) for a complete guide on using the brand colors throughout the application.
+
+**Key colors:**
+- **Primary**: Deep Blue (`#0a3f58`) - Main brand color
+- **Secondary**: Sage Green (`#bdd5cd`) - Secondary actions
+- **Accent**: Warm Gold (`#f6d499`) - Highlights and special elements
+
 Currently, two official plugins are available:
 
 - [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh

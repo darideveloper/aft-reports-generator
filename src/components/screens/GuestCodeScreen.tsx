@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useFormStore } from '../../store/formStore';
+import { validateInvitationCode } from '../../lib/api/invitation-code';
 
 interface GuestCodeScreenProps {
   currentScreen: number;
@@ -17,6 +18,36 @@ export const GuestCodeScreen: React.FC<GuestCodeScreenProps> = ({
   const { guestCodeResponse, setGuestCode } = useFormStore();
   const [guestCode, setLocalGuestCode] = useState(guestCodeResponse?.guestCode || '');
   const [error, setError] = useState('');
+  const [isValidating, setIsValidating] = useState(false);
+  const [validationMessage, setValidationMessage] = useState('');
+
+  const handleValidate = async () => {
+    if (!guestCode.trim()) {
+      setError('El código de invitado es obligatorio');
+      return;
+    }
+
+    setIsValidating(true);
+    setError('');
+    setValidationMessage('');
+
+    try {
+      const isValid = await validateInvitationCode(guestCode);
+      
+      if (isValid) {
+        setValidationMessage('✅ Código válido');
+        setError('');
+      } else {
+        setValidationMessage('❌ Código inválido');
+        setError('El código de invitado no es válido');
+      }
+    } catch (error) {
+      setValidationMessage('❌ Error al validar');
+      setError('Error al validar el código. Inténtalo de nuevo.');
+    } finally {
+      setIsValidating(false);
+    }
+  };
 
   const handleNext = () => {
     if (!guestCode.trim()) {
@@ -33,34 +64,53 @@ export const GuestCodeScreen: React.FC<GuestCodeScreenProps> = ({
     if (error) {
       setError('');
     }
+    if (validationMessage) {
+      setValidationMessage('');
+    }
   };
 
   return (
-    <div className="max-w-2xl mx-auto p-6 bg-white rounded-lg shadow-lg">
+    <div className="max-w-2xl mx-auto p-6 bg-card rounded-lg shadow-lg border border-border">
       <div className="text-center space-y-6">
         <div className="text-4xl">🔐</div>
-        <h2 className="text-3xl font-bold text-gray-900">Código de Invitado</h2>
-        <p className="text-gray-600 text-lg">
+        <h2 className="text-3xl font-bold text-foreground">Código de Invitado</h2>
+        <p className="text-muted-foreground text-lg">
           Por favor, ingresa tu código de invitado para continuar
         </p>
         
         <div className="text-left space-y-4">
           <div>
-            <label htmlFor="guestCode" className="block text-sm font-medium text-gray-700 mb-2">
+            <label htmlFor="guestCode" className="block text-sm font-medium text-foreground mb-2">
               Código de Invitado
             </label>
-            <input
-              id="guestCode"
-              type="text"
-              value={guestCode}
-              onChange={(e) => handleInputChange(e.target.value)}
-              className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent transition-colors ${
-                error ? 'border-red-500' : 'border-gray-300'
-              }`}
-              placeholder="Ingresa tu código de invitado"
-            />
+            <div className="flex space-x-2">
+              <input
+                id="guestCode"
+                type="text"
+                value={guestCode}
+                onChange={(e) => handleInputChange(e.target.value)}
+                className={`flex-1 px-4 py-3 border rounded-lg focus:ring-2 focus:ring-ring focus:border-transparent transition-colors bg-background text-foreground placeholder:text-muted-foreground ${
+                  error ? 'border-destructive' : 'border-input'
+                }`}
+                placeholder="Ingresa tu código de invitado"
+              />
+              <button
+                onClick={handleValidate}
+                disabled={isValidating || !guestCode.trim()}
+                className="px-4 py-3 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed transition-colors focus:ring-2 focus:ring-ring focus:ring-offset-2"
+              >
+                {isValidating ? 'Validando...' : 'Validar'}
+              </button>
+            </div>
             {error && (
-              <p className="text-red-500 text-sm mt-1">{error}</p>
+              <p className="text-destructive text-sm mt-1">{error}</p>
+            )}
+            {validationMessage && (
+              <p className={`text-sm mt-1 ${
+                validationMessage.includes('✅') ? 'text-green-600' : 'text-destructive'
+              }`}>
+                {validationMessage}
+              </p>
             )}
           </div>
         </div>
@@ -68,19 +118,19 @@ export const GuestCodeScreen: React.FC<GuestCodeScreenProps> = ({
         <div className="flex justify-between pt-4">
           <button
             onClick={onPrevious}
-            className="px-6 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
+            className="px-6 py-3 border border-border text-foreground rounded-lg hover:bg-muted transition-colors focus:ring-2 focus:ring-ring focus:ring-offset-2"
           >
             Anterior
           </button>
           
           <div className="flex items-center space-x-4">
-            <span className="text-sm text-gray-500">
+            <span className="text-sm text-muted-foreground">
               {currentScreen} de {totalScreens}
             </span>
             <button
               onClick={handleNext}
-              className="text-white px-6 py-3 rounded-lg transition-colors"
-              style={{ backgroundColor: 'var(--primary)' }}
+              className="px-6 py-3 rounded-lg transition-colors focus:ring-2 focus:ring-ring focus:ring-offset-2"
+              style={{ backgroundColor: 'var(--primary)', color: 'var(--primary-foreground)' }}
               onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'var(--secondary)'}
               onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'var(--primary)'}
             >

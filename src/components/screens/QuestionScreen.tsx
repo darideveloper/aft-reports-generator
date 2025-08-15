@@ -31,18 +31,18 @@ export const QuestionScreen: React.FC<QuestionScreenProps> = ({
   isLastScreen
 }) => {
   return (
-    <div className="max-w-4xl mx-auto p-6 bg-white rounded-lg shadow-lg">
+    <div className="max-w-4xl mx-auto p-6 bg-card rounded-lg shadow-lg border border-border">
       {/* Progress Bar */}
       <div className="mb-8">
         <div className="flex justify-between items-center mb-2">
-          <span className="text-sm font-medium text-gray-700">
+          <span className="text-sm font-medium text-foreground">
             Pantalla {currentScreen + 1} de {totalScreens}
           </span>
-          <span className="text-sm text-gray-500">
+          <span className="text-sm text-muted-foreground">
             {Math.round(((currentScreen + 1) / totalScreens) * 100)}% Completado
           </span>
         </div>
-        <div className="w-full bg-gray-200 rounded-full h-2">
+        <div className="w-full bg-muted rounded-full h-2">
           <div
             className="h-2 rounded-full transition-all duration-300"
             style={{ 
@@ -55,11 +55,11 @@ export const QuestionScreen: React.FC<QuestionScreenProps> = ({
 
       {/* Screen Header */}
       <div className="mb-8 text-center">
-        <h2 className="text-2xl font-bold text-gray-900 mb-2">
+        <h2 className="text-2xl font-bold text-foreground mb-2">
           {screenName}
         </h2>
         {screenDetails && (
-          <div className="text-gray-600 text-lg">
+          <div className="text-muted-foreground text-lg">
             <MarkdownRenderer 
               content={screenDetails} 
               className="prose prose-lg max-w-none"
@@ -75,7 +75,7 @@ export const QuestionScreen: React.FC<QuestionScreenProps> = ({
           const value = response?.answer || '';
           
           return (
-            <div key={question.id} className="border border-gray-200 rounded-lg p-6 bg-gray-50">
+            <div key={question.id} className="border border-border rounded-lg p-6 bg-muted">
               <QuestionRenderer
                 question={question}
                 value={value}
@@ -84,7 +84,7 @@ export const QuestionScreen: React.FC<QuestionScreenProps> = ({
               
               {/* Error Message */}
               {errors[question.id] && (
-                <div className="mt-3 text-red-600 text-sm">
+                <div className="mt-3 text-destructive text-sm">
                   {errors[question.id]}
                 </div>
               )}
@@ -97,7 +97,7 @@ export const QuestionScreen: React.FC<QuestionScreenProps> = ({
       <div className="flex justify-between">
         <button
           onClick={onPrevious}
-          className="text-white px-6 py-2 rounded-lg transition-colors hover:opacity-80"
+          className="px-6 py-2 rounded-lg transition-colors hover:opacity-80 focus:ring-2 focus:ring-ring focus:ring-offset-2"
           style={{ 
             backgroundColor: 'var(--secondary)',
             color: 'var(--secondary-foreground)'
@@ -109,8 +109,8 @@ export const QuestionScreen: React.FC<QuestionScreenProps> = ({
         {isLastScreen ? (
           <button
             onClick={onNext}
-            className="text-white px-6 py-2 rounded-lg transition-colors hover:opacity-80"
-            style={{ backgroundColor: 'var(--accent)' }}
+            className="px-6 py-2 rounded-lg transition-colors hover:opacity-80 focus:ring-2 focus:ring-ring focus:ring-offset-2"
+            style={{ backgroundColor: 'var(--accent)', color: 'var(--accent-foreground)' }}
             onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'var(--primary)'}
             onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'var(--accent)'}
           >
@@ -119,8 +119,8 @@ export const QuestionScreen: React.FC<QuestionScreenProps> = ({
         ) : (
           <button
             onClick={onNext}
-            className="text-white px-6 py-2 rounded-lg transition-colors hover:opacity-80"
-            style={{ backgroundColor: 'var(--primary)' }}
+            className="px-6 py-2 rounded-lg transition-colors hover:opacity-80 focus:ring-2 focus:ring-ring focus:ring-offset-2"
+            style={{ backgroundColor: 'var(--primary)', color: 'var(--primary-foreground)' }}
             onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'var(--secondary)'}
             onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'var(--primary)'}
           >

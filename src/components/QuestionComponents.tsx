@@ -17,14 +17,14 @@ export const MultiChoiceQuestion: React.FC<QuestionComponentProps> = ({
 }) => {
   return (
     <div className="space-y-3">
-      <h3 className="text-lg font-medium text-gray-900">
+      <h3 className="text-lg font-medium text-foreground">
         <MarkdownRenderer 
           content={question.text} 
           className="prose prose-lg max-w-none"
         />
       </h3>
       {question.details && (
-        <div className="text-sm text-gray-600">
+        <div className="text-sm text-muted-foreground">
           <MarkdownRenderer 
             content={question.details} 
             className="prose prose-sm max-w-none"
@@ -41,9 +41,9 @@ export const MultiChoiceQuestion: React.FC<QuestionComponentProps> = ({
               checked={value === option.text}
               onChange={(e) => onChange(e.target.value)}
               onBlur={onBlur}
-              className="h-4 w-4 border-gray-300 text-primary focus:ring-primary focus:ring-2 focus:ring-offset-2 focus:ring-offset-background radio-brand-colors"
+              className="h-4 w-4 border-input text-primary focus:ring-ring focus:ring-2 focus:ring-offset-2 focus:ring-offset-background radio-brand-colors"
             />
-            <span className="text-gray-700">{option.text}</span>
+            <span className="text-foreground">{option.text}</span>
           </label>
         ))}
       </div>
