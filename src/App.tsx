@@ -6,10 +6,10 @@ function App() {
       <div className="container mx-auto">
         <div className="text-center mb-8">
           <h1 className="text-4xl font-bold text-gray-900 mb-2">
-            Multi-Screen Form
+            Formulario Multi-Pantalla
           </h1>
           <p className="text-gray-600 text-lg">
-            Complete each screen to proceed to the next one
+            Completa cada pantalla para continuar a la siguiente
           </p>
         </div>
         <MultiScreenForm />

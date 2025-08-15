@@ -38,12 +38,12 @@ export const MultiScreenForm: React.FC = () => {
       if (question.required) {
         const response = responses.find(r => r.questionId === question.id);
         if (!response || !response.answer.trim()) {
-          newErrors[question.id] = 'This question is required';
+          newErrors[question.id] = 'Esta pregunta es obligatoria';
           hasErrors = true;
         } else if (question.type === 'email') {
           const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
           if (!emailRegex.test(response.answer)) {
-            newErrors[question.id] = 'Please enter a valid email address';
+            newErrors[question.id] = 'Por favor ingresa una dirección de correo válida';
             hasErrors = true;
           }
         }
@@ -79,9 +79,9 @@ export const MultiScreenForm: React.FC = () => {
       <div className="max-w-2xl mx-auto p-6 bg-white rounded-lg shadow-lg">
         <div className="text-center space-y-6">
           <div className="text-6xl">🎉</div>
-          <h2 className="text-3xl font-bold text-gray-900">Form Completed!</h2>
+          <h2 className="text-3xl font-bold text-gray-900">¡Formulario Completado!</h2>
           <p className="text-gray-600 text-lg">
-            Thank you for completing the form. Here's a summary of your responses:
+            Gracias por completar el formulario. Aquí tienes un resumen de tus respuestas:
           </p>
           
           <div className="text-left space-y-4 bg-gray-50 p-6 rounded-lg">
@@ -100,7 +100,7 @@ export const MultiScreenForm: React.FC = () => {
             onClick={resetForm}
             className="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors"
           >
-            Start Over
+            Comenzar de Nuevo
           </button>
         </div>
       </div>
@@ -113,10 +113,10 @@ export const MultiScreenForm: React.FC = () => {
       <div className="mb-8">
         <div className="flex justify-between items-center mb-2">
           <span className="text-sm font-medium text-gray-700">
-            Screen {currentScreen + 1} of {screens.length}
+            Pantalla {currentScreen + 1} de {screens.length}
           </span>
           <span className="text-sm text-gray-500">
-            {Math.round(((currentScreen + 1) / screens.length) * 100)}% Complete
+            {Math.round(((currentScreen + 1) / screens.length) * 100)}% Completado
           </span>
         </div>
         <div className="w-full bg-gray-200 rounded-full h-2">
@@ -175,7 +175,7 @@ export const MultiScreenForm: React.FC = () => {
               : 'bg-gray-600 text-white hover:bg-gray-700'
           }`}
         >
-          Previous
+          Anterior
         </button>
 
         {currentScreen === screens.length - 1 ? (
@@ -183,14 +183,14 @@ export const MultiScreenForm: React.FC = () => {
             onClick={handleSubmit}
             className="bg-green-600 text-white px-6 py-2 rounded-lg hover:bg-green-700 transition-colors"
           >
-            Submit
+            Enviar
           </button>
         ) : (
           <button
             onClick={handleNext}
             className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition-colors"
           >
-            Next
+            Siguiente
           </button>
         )}
       </div>

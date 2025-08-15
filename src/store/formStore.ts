@@ -42,46 +42,46 @@ const questions: Question[] = [
   {
     id: '1',
     type: 'multi-choice',
-    question: 'What is your preferred programming language?',
+    question: '¿Cuál es tu lenguaje de programación preferido?',
     options: ['JavaScript', 'TypeScript', 'Python', 'Java', 'C++'],
     required: true
   },
   {
     id: '2',
     type: 'email',
-    question: 'What is your email address?',
+    question: '¿Cuál es tu dirección de correo electrónico?',
     required: true
   },
   {
     id: '3',
     type: 'text',
-    question: 'Tell us about your experience with React:',
+    question: 'Cuéntanos sobre tu experiencia con React:',
     required: true
   },
   {
     id: '4',
     type: 'multi-choice',
-    question: 'How many years of experience do you have?',
-    options: ['0-1 years', '1-3 years', '3-5 years', '5+ years'],
+    question: '¿Cuántos años de experiencia tienes?',
+    options: ['0-1 años', '1-3 años', '3-5 años', '5+ años'],
     required: true
   },
   {
     id: '5',
     type: 'text',
-    question: 'What are your career goals?',
+    question: '¿Cuáles son tus metas profesionales?',
     required: true
   },
   {
     id: '6',
     type: 'multi-choice',
-    question: 'What type of projects do you enjoy working on?',
-    options: ['Frontend', 'Backend', 'Full-stack', 'Mobile', 'Desktop'],
+    question: '¿Qué tipo de proyectos te gusta trabajar?',
+    options: ['Frontend', 'Backend', 'Full-stack', 'Móvil', 'Escritorio'],
     required: true
   },
   {
     id: '7',
     type: 'text',
-    question: 'Describe your ideal work environment:',
+    question: 'Describe tu ambiente de trabajo ideal:',
     required: true
   }
 ];
@@ -89,20 +89,20 @@ const questions: Question[] = [
 const screens: Screen[] = [
   {
     id: 'screen1',
-    title: 'Personal Information',
-    description: 'Let\'s start with some basic information about you',
+    title: 'Información Personal',
+    description: 'Comencemos con información básica sobre ti',
     questionIds: ['1', '2']
   },
   {
     id: 'screen2',
-    title: 'Experience & Skills',
-    description: 'Tell us about your background and experience',
+    title: 'Experiencia y Habilidades',
+    description: 'Cuéntanos sobre tu experiencia y antecedentes',
     questionIds: ['3', '4', '5']
   },
   {
     id: 'screen3',
-    title: 'Preferences & Goals',
-    description: 'Help us understand your preferences and career goals',
+    title: 'Preferencias y Metas',
+    description: 'Ayúdanos a entender tus preferencias y metas profesionales',
     questionIds: ['6', '7']
   }
 ];

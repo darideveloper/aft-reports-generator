@@ -51,7 +51,7 @@ export const EmailQuestion: React.FC<QuestionComponentProps> = ({
         value={value}
         onChange={(e) => onChange(e.target.value)}
         onBlur={onBlur}
-        placeholder="Enter your email address"
+        placeholder="Ingresa tu dirección de correo electrónico"
         className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
       />
     </div>
@@ -71,7 +71,7 @@ export const TextQuestion: React.FC<QuestionComponentProps> = ({
         value={value}
         onChange={(e) => onChange(e.target.value)}
         onBlur={onBlur}
-        placeholder="Type your answer here..."
+        placeholder="Escribe tu respuesta aquí..."
         rows={4}
         className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 resize-none"
       />
@@ -114,6 +114,6 @@ export const QuestionRenderer: React.FC<{
         />
       );
     default:
-      return <div>Unsupported question type</div>;
+      return <div>Tipo de pregunta no soportado</div>;
   }
 }; 
