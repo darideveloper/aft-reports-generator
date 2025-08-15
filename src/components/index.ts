@@ -1,8 +1,8 @@
 export { MultiScreenForm } from './MultiScreenForm';
-export { SurveyInfoScreen } from './SurveyInfoScreen';
-export { QuestionGroupInfoScreen } from './QuestionGroupInfoScreen';
-export { QuestionScreen } from './QuestionScreen';
-export { GuestCodeScreen } from './GuestCodeScreen';
-export { CompletionScreen } from './CompletionScreen';
+export { SurveyInfoScreen } from './screens/SurveyInfoScreen';
+export { QuestionGroupInfoScreen } from './screens/QuestionGroupInfoScreen';
+export { QuestionScreen } from './screens/QuestionScreen';
+export { GuestCodeScreen } from './screens/GuestCodeScreen';
+export { CompletionScreen } from './screens/CompletionScreen';
 export { QuestionRenderer, MultiChoiceQuestion } from './QuestionComponents';
 export { MarkdownRenderer } from './ui/markdown-renderer'; 
