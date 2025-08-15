@@ -39,7 +39,7 @@ export const GuestCodeScreen: React.FC<GuestCodeScreenProps> = ({
         setError('');
       } else {
         setValidationMessage('❌ Código inválido');
-        setError('El código de invitado no es válido');
+        // Don't set error state to avoid duplicate messages
       }
     } catch (error) {
       setValidationMessage('❌ Error al validar');
@@ -102,7 +102,7 @@ export const GuestCodeScreen: React.FC<GuestCodeScreenProps> = ({
                 {isValidating ? 'Validando...' : 'Validar'}
               </button>
             </div>
-            {error && (
+            {error && !validationMessage && (
               <p className="text-destructive text-sm mt-1">{error}</p>
             )}
             {validationMessage && (
