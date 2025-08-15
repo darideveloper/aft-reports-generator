@@ -1,7 +1,7 @@
 import React from 'react';
-import { QuestionRenderer } from './QuestionComponents';
-import { MarkdownRenderer } from './ui/markdown-renderer';
-import type { Question, FormResponse } from '../store/formStore';
+import { QuestionRenderer } from '../QuestionComponents';
+import { MarkdownRenderer } from '../ui/markdown-renderer';
+import type { Question, FormResponse } from '../../store/formStore';
 
 interface QuestionScreenProps {
   currentScreen: number;

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useFormStore } from '../store/formStore';
+import { useFormStore } from '../../store/formStore';
 
 interface GuestCodeScreenProps {
   currentScreen: number;

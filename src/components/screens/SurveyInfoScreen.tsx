@@ -1,5 +1,5 @@
 import React from 'react';
-import { MarkdownRenderer } from './ui/markdown-renderer';
+import { MarkdownRenderer } from '../ui/markdown-renderer';
 
 interface SurveyInfoScreenProps {
   surveyName: string;

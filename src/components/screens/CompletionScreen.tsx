@@ -1,7 +1,7 @@
 import React from 'react';
-import type { Question, FormResponse } from '../store/formStore';
-import { useFormStore } from '../store/formStore';
-import { MarkdownRenderer } from './ui/markdown-renderer';
+import type { Question, FormResponse } from '../../store/formStore';
+import { useFormStore } from '../../store/formStore';
+import { MarkdownRenderer } from '../ui/markdown-renderer';
 
 interface CompletionScreenProps {
   responses: FormResponse[];

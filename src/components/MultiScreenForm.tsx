@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
 import { useFormStore } from '../store/formStore';
-import { SurveyInfoScreen } from './SurveyInfoScreen';
-import { QuestionGroupInfoScreen } from './QuestionGroupInfoScreen';
-import { QuestionScreen } from './QuestionScreen';
-import { GuestCodeScreen } from './GuestCodeScreen';
-import { CompletionScreen } from './CompletionScreen';
+import { SurveyInfoScreen } from './screens/SurveyInfoScreen';
+import { QuestionGroupInfoScreen } from './screens/QuestionGroupInfoScreen';
+import { QuestionScreen } from './screens/QuestionScreen';
+import { GuestCodeScreen } from './screens/GuestCodeScreen';
+import { CompletionScreen } from './screens/CompletionScreen';
 
 export const MultiScreenForm: React.FC = () => {
   const {
