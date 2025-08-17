@@ -76,16 +76,6 @@ export const CompletionScreen: React.FC<CompletionScreenProps> = ({
             );
           })}
         </div>
-        
-        <button
-          onClick={onReset}
-          className="px-6 py-3 rounded-lg transition-colors focus:ring-2 focus:ring-ring focus:ring-offset-2"
-          style={{ backgroundColor: 'var(--primary)', color: 'var(--primary-foreground)' }}
-          onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'var(--secondary)'}
-          onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'var(--primary)'}
-        >
-          Comenzar de Nuevo
-        </button>
       </div>
     </div>
   );
