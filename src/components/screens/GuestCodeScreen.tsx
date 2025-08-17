@@ -106,6 +106,9 @@ export const GuestCodeScreen: React.FC<GuestCodeScreenProps> = ({
             {error && (
               <p className="text-destructive text-sm mt-1">{error}</p>
             )}
+            {isValid && !error && (
+              <p className="text-green-600 text-sm mt-1">✅ Código válido - Puedes continuar</p>
+            )}
           </div>
         </div>
         
