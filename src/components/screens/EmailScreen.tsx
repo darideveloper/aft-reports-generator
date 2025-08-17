@@ -1,0 +1,154 @@
+import React, { useState } from 'react';
+import { useFormStore } from '../../store/formStore';
+import { validateEmail } from '../../lib/api/email-validation';
+
+interface EmailScreenProps {
+  currentScreen: number;
+  totalScreens: number;
+  onNext: () => void;
+  onPrevious: () => void;
+}
+
+export const EmailScreen: React.FC<EmailScreenProps> = ({
+  currentScreen,
+  totalScreens,
+  onNext,
+  onPrevious
+}) => {
+  const { emailResponse, setEmail } = useFormStore();
+  const [email, setLocalEmail] = useState(emailResponse?.email || '');
+  const [error, setError] = useState('');
+  const [isValidating, setIsValidating] = useState(false);
+  const [isValid, setIsValid] = useState(false);
+
+  const handleValidate = async () => {
+    if (!email.trim()) {
+      setError('El email es obligatorio');
+      return;
+    }
+
+    // Basic email validation
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      setError('Por favor, ingresa un email válido');
+      return;
+    }
+
+    setIsValidating(true);
+    setError('');
+
+    try {
+      const emailIsValid = await validateEmail(email);
+      setIsValid(emailIsValid);
+      
+      if (!emailIsValid) {
+        setError('El email no es válido');
+      }
+    } catch (error) {
+      setError('Error al validar el email. Inténtalo de nuevo.');
+      setIsValid(false);
+    } finally {
+      setIsValidating(false);
+    }
+  };
+
+  const handleNext = () => {
+    if (!email.trim()) {
+      setError('El email es obligatorio');
+      return;
+    }
+    
+    if (!isValid) {
+      setError('Debes validar el email antes de continuar');
+      return;
+    }
+    
+    setError('');
+    setEmail(email);
+    onNext();
+  };
+
+  const handleInputChange = (value: string) => {
+    setLocalEmail(value);
+    if (error) {
+      setError('');
+    }
+    // Reset validation state when user changes input
+    setIsValid(false);
+  };
+
+  return (
+    <div className="max-w-2xl mx-auto p-6 bg-card rounded-lg shadow-lg border border-border">
+      <div className="text-center space-y-6">
+        <div className="text-4xl">📧</div>
+        <h2 className="text-3xl font-bold text-foreground">Validación de Email</h2>
+        <p className="text-muted-foreground text-lg">
+          Por favor, ingresa tu email para continuar
+        </p>
+        
+        <div className="text-left space-y-4">
+          <div>
+            <label htmlFor="email" className="block text-sm font-medium text-foreground mb-2">
+              Email
+            </label>
+            <div className="flex space-x-2">
+              <input
+                id="email"
+                type="email"
+                value={email}
+                onChange={(e) => handleInputChange(e.target.value)}
+                className={`flex-1 px-4 py-3 border rounded-lg focus:ring-2 focus:ring-ring focus:border-transparent transition-colors bg-background text-foreground placeholder:text-muted-foreground ${
+                  error ? 'border-destructive' : 'border-input'
+                }`}
+                placeholder="Ingresa tu email"
+              />
+              <button
+                onClick={handleValidate}
+                disabled={isValidating || !email.trim()}
+                className="px-4 py-3 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed transition-colors focus:ring-2 focus:ring-ring focus:ring-offset-2"
+              >
+                {isValidating ? 'Validando...' : 'Validar'}
+              </button>
+            </div>
+            {error && (
+              <p className="text-destructive text-sm mt-1">{error}</p>
+            )}
+          </div>
+        </div>
+        
+        <div className="flex justify-between pt-4">
+          <button
+            onClick={onPrevious}
+            className="px-6 py-3 border border-border text-foreground rounded-lg hover:bg-muted transition-colors focus:ring-2 focus:ring-ring focus:ring-offset-2"
+          >
+            Anterior
+          </button>
+          
+          <div className="flex items-center space-x-4">
+            <span className="text-sm text-muted-foreground">
+              {currentScreen} de {totalScreens}
+            </span>
+            <button
+              onClick={handleNext}
+              disabled={!isValid}
+              className="px-6 py-3 rounded-lg transition-colors focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
+              style={{ backgroundColor: 'var(--primary)', color: 'var(--primary-foreground)' }}
+              onMouseEnter={(e) => {
+                if (isValid) {
+                  e.currentTarget.style.backgroundColor = 'var(--secondary)';
+                }
+              }}
+              onMouseLeave={(e) => {
+                if (isValid) {
+                  e.currentTarget.style.backgroundColor = 'var(--primary)';
+                }
+              }}
+            >
+              Continuar
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}; 

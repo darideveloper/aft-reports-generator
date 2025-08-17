@@ -1,22 +1,22 @@
-export const validateInvitationCode = async (invitationCode: string): Promise<boolean> => {
+export const validateEmail = async (email: string): Promise<boolean> => {
   try {
     const apiEndpoint = import.meta.env.VITE_API_ENDPOINT
     const apiKey = import.meta.env.VITE_API_KEY;
-    console.log({apiKey})
     
     if (!apiKey) {
       console.error('API key not found in environment variables');
       return false;
     }
 
-    const response = await fetch(`${apiEndpoint}/invitation-code/`, {
+    const response = await fetch(`${apiEndpoint}/participant/has-answer/`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
         'Authorization': `Token ${apiKey}`,
       },
       body: JSON.stringify({
-        invitation_code: invitationCode
+        email: email,
+        survey_id: 1,
       }),
     });
 
@@ -34,7 +34,7 @@ export const validateInvitationCode = async (invitationCode: string): Promise<bo
     
     return false;
   } catch (error) {
-    console.error('Error validating invitation code:', error);
+    console.error('Error validating email:', error);
     return false;
   }
 }; 
