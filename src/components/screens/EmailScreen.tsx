@@ -113,6 +113,9 @@ export const EmailScreen: React.FC<EmailScreenProps> = ({
             {error && (
               <p className="text-destructive text-sm mt-1">{error}</p>
             )}
+            {isValid && !error && (
+              <p className="text-green-600 text-sm mt-1">✅ Email válido - Puedes continuar</p>
+            )}
           </div>
         </div>
         
