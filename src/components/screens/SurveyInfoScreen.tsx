@@ -17,6 +17,9 @@ export const SurveyInfoScreen: React.FC<SurveyInfoScreenProps> = ({
   return (
     <div className="max-w-4xl mx-auto p-6 bg-card rounded-lg shadow-lg border border-border">
       {/* Survey Header */}
+
+      <img src="/logo.webp" alt="Logo" className="w-64 h-auto mx-auto mb-6" />
+
       <div className="mb-8 text-center">
         <h1 className="text-4xl font-bold text-foreground mb-6">{surveyName}</h1>
         <div className="text-sm text-muted-foreground max-h-96 overflow-y-auto custom-scrollbar bg-muted p-6 rounded-lg text-left">
