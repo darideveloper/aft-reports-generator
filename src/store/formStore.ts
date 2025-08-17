@@ -445,9 +445,11 @@ export const useFormStore = create<FormStore>((set, get) => ({
     } else if (currentScreen === 2) {
       // Move from email screen to first question group info
       set({ currentScreen: 3 });
-    } else if (currentScreen < (3 + survey.question_groups.length * 2)) {
+    } else if (currentScreen < (3 + survey.question_groups.length * 2 - 1)) {
+      // Continue through question groups (info + questions)
       set({ currentScreen: currentScreen + 1 });
     } else {
+      // All screens completed, show completion screen
       set({ isComplete: true });
     }
   },

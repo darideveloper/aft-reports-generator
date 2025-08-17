@@ -79,6 +79,27 @@ export const GuestCodeScreen: React.FC<GuestCodeScreenProps> = ({
           Por favor, ingresa tu código de invitado para continuar
         </p>
         
+        {/* Progress Bar */}
+        <div className="mb-4">
+          <div className="flex justify-between items-center mb-2">
+            <span className="text-sm font-medium text-foreground">
+              Pantalla {currentScreen + 1} de {totalScreens}
+            </span>
+            <span className="text-sm text-muted-foreground">
+              {Math.min(Math.round(((currentScreen + 1) / totalScreens) * 100), 100)}% Completado
+            </span>
+          </div>
+          <div className="w-full bg-muted rounded-full h-2">
+            <div
+              className="h-2 rounded-full transition-all duration-300"
+              style={{ 
+                width: `${Math.min(((currentScreen + 1) / totalScreens) * 100, 100)}%`,
+                backgroundColor: 'var(--primary)'
+              }}
+            />
+          </div>
+        </div>
+        
         <div className="text-left space-y-4">
           <div>
             <label htmlFor="guestCode" className="block text-sm font-medium text-foreground mb-2">

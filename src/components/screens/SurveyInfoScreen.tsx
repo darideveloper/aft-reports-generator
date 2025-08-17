@@ -34,14 +34,14 @@ export const SurveyInfoScreen: React.FC<SurveyInfoScreenProps> = ({
             Pantalla 1 de {totalScreens}
           </span>
           <span className="text-sm text-muted-foreground">
-            {Math.round((1 / totalScreens) * 100)}% Completado
+            {Math.min(Math.round((1 / totalScreens) * 100), 100)}% Completado
           </span>
         </div>
         <div className="w-full bg-muted rounded-full h-2">
           <div
             className="h-2 rounded-full transition-all duration-300"
             style={{ 
-              width: `${(1 / totalScreens) * 100}%`,
+              width: `${Math.min((1 / totalScreens) * 100, 100)}%`,
               backgroundColor: 'var(--primary)'
             }}
           />

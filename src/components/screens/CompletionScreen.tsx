@@ -25,6 +25,27 @@ export const CompletionScreen: React.FC<CompletionScreenProps> = ({
           Gracias por completar el formulario. Aquí tienes un resumen de tus respuestas:
         </p>
         
+        {/* Progress Bar - 100% Complete */}
+        <div className="mb-4">
+          <div className="flex justify-between items-center mb-2">
+            <span className="text-sm font-medium text-foreground">
+              Formulario Completado
+            </span>
+            <span className="text-sm text-muted-foreground">
+              100% Completado
+            </span>
+          </div>
+          <div className="w-full bg-muted rounded-full h-2">
+            <div
+              className="h-2 rounded-full transition-all duration-300"
+              style={{ 
+                width: '100%',
+                backgroundColor: 'var(--primary)'
+              }}
+            />
+          </div>
+        </div>
+        
         <div className="bg-primary/10 border border-primary/20 rounded-lg p-4">
           <p className="text-primary font-medium text-lg">
             Te contactaremos para enviarte tu informe de resultados

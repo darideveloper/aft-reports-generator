@@ -136,6 +136,8 @@ export const MultiScreenForm: React.FC = () => {
   }
 
   // Question Screen
+  const isLastScreen = currentScreen >= (3 + survey.question_groups.length * 2 - 2);
+  
   return (
     <QuestionScreen
       currentScreen={currentScreen}
@@ -148,7 +150,7 @@ export const MultiScreenForm: React.FC = () => {
       onAnswerChange={handleAnswerChange}
       onNext={handleNext}
       onPrevious={handlePrevious}
-      isLastScreen={false}
+      isLastScreen={isLastScreen}
     />
   );
 }; 
