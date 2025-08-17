@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useFormStore } from '../store/formStore';
 import { SurveyInfoScreen } from './screens/SurveyInfoScreen';
 import { QuestionGroupInfoScreen } from './screens/QuestionGroupInfoScreen';
@@ -11,25 +11,74 @@ export const MultiScreenForm: React.FC = () => {
   const {
     currentScreen,
     survey,
+    isLoading,
+    error,
     responses,
     nextScreen,
     previousScreen,
     updateResponse,
     isComplete,
-    resetForm,
     getCurrentScreenQuestions,
     getCurrentScreenData,
     isSurveyInfoScreen,
     isQuestionGroupInfoScreen,
     isGuestCodeScreen,
     isEmailScreen,
-    getTotalScreens
+    getTotalScreens,
+    fetchSurveyData
   } = useFormStore();
+
+  // Fetch survey data when component mounts
+  useEffect(() => {
+    fetchSurveyData(1); // Fetch survey with ID 1
+  }, [fetchSurveyData]);
 
   const [errors, setErrors] = useState<Record<number, string>>({});
 
   const currentScreenData = getCurrentScreenData();
   const currentScreenQuestions = getCurrentScreenQuestions();
+
+  // Show loading state
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+          <p className="text-gray-600">Cargando encuesta...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Show error state
+  if (error) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="text-center">
+          <div className="text-red-600 text-xl mb-4">Error al cargar la encuesta</div>
+          <p className="text-gray-600 mb-4">{error}</p>
+          <button 
+            onClick={() => fetchSurveyData(1)}
+            className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+          >
+            Reintentar
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  // Show loading state while survey is null
+  if (!survey) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+          <p className="text-gray-600">Inicializando...</p>
+        </div>
+      </div>
+    );
+  }
 
   const handleAnswerChange = (questionId: number, value: string) => {
     updateResponse(questionId, value);
@@ -130,7 +179,6 @@ export const MultiScreenForm: React.FC = () => {
       <CompletionScreen
         responses={responses}
         surveyQuestions={allQuestions}
-        onReset={resetForm}
       />
     );
   }

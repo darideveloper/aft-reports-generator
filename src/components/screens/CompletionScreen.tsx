@@ -6,13 +6,11 @@ import { MarkdownRenderer } from '../ui/markdown-renderer';
 interface CompletionScreenProps {
   responses: FormResponse[];
   surveyQuestions: Question[];
-  onReset: () => void;
 }
 
 export const CompletionScreen: React.FC<CompletionScreenProps> = ({
   responses,
-  surveyQuestions,
-  onReset
+  surveyQuestions
 }) => {
   const { guestCodeResponse } = useFormStore();
   
