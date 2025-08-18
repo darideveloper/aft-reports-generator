@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import type { Question, FormResponse } from '../../store/formStore';
 import { useFormStore } from '../../store/formStore';
 import { MarkdownRenderer } from '../ui/markdown-renderer';
@@ -13,6 +13,10 @@ export const CompletionScreen: React.FC<CompletionScreenProps> = ({
   surveyQuestions
 }) => {
   const { guestCodeResponse } = useFormStore();
+  
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }, []);
   
   return (
     <div className="max-w-2xl mx-auto p-6 bg-card rounded-lg shadow-lg border border-border">
