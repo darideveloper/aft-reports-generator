@@ -46,6 +46,9 @@ export interface GuestCodeResponse {
 
 export interface EmailResponse {
   email: string;
+  gender: string;
+  birthRange: string;
+  position: string;
 }
 
 interface FormStore {
@@ -63,7 +66,8 @@ interface FormStore {
   addResponse: (response: FormResponse) => void;
   updateResponse: (questionId: number, answer: string) => void;
   setGuestCode: (guestCode: string) => void;
-  setEmail: (email: string) => void;
+  setEmail: (email: string, gender?: string, birthRange?: string, position?: string) => void;
+  setGeneralData: (field: 'gender' | 'birthRange' | 'position', value: string) => void;
   fetchSurveyData: (surveyId: number) => Promise<void>;
   nextScreen: () => void;
   previousScreen: () => void;
@@ -132,8 +136,20 @@ export const useFormStore = create<FormStore>((set, get) => ({
     set({ guestCodeResponse: { guestCode } });
   },
 
-  setEmail: (email: string) => {
-    set({ emailResponse: { email } });
+  setEmail: (email: string, gender: string = '', birthRange: string = '', position: string = '') => {
+    set({ emailResponse: { email, gender, birthRange, position } });
+  },
+
+  setGeneralData: (field: 'gender' | 'birthRange' | 'position', value: string) => {
+    const { emailResponse } = get();
+    if (emailResponse) {
+      set({ 
+        emailResponse: { 
+          ...emailResponse, 
+          [field]: value 
+        } 
+      });
+    }
   },
 
   nextScreen: () => {

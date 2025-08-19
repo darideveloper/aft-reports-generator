@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useFormStore } from '../../store/formStore';
 import { validateEmail } from '../../lib/api/email-validation';
+import { Dropdown } from '../ui/dropdown';
 
 interface GeneralDataScreenProps {
   currentScreen: number;
@@ -15,11 +16,36 @@ export const GeneralDataScreen: React.FC<GeneralDataScreenProps> = ({
   onNext,
   onPrevious
 }) => {
-  const { emailResponse, setEmail } = useFormStore();
+  const { emailResponse, setEmail, setGeneralData } = useFormStore();
   const [email, setLocalEmail] = useState(emailResponse?.email || '');
+  const [gender, setGender] = useState(emailResponse?.gender || '');
+  const [birthRange, setBirthRange] = useState(emailResponse?.birthRange || '');
+  const [position, setPosition] = useState(emailResponse?.position || '');
   const [error, setError] = useState('');
   const [isValidating, setIsValidating] = useState(false);
   const [isValid, setIsValid] = useState(false);
+
+  // Dropdown options
+  const GENDER_CHOICES = [
+    { value: "m", label: "Masculino" },
+    { value: "f", label: "Feminino" },
+    { value: "o", label: "Otro" },
+  ];
+
+  const BIRTH_RANGE_CHOICES = [
+    { value: "1946-1964", label: "1946-1964" },
+    { value: "1965-1980", label: "1965-1980" },
+    { value: "1981-1996", label: "1981-1996" },
+    { value: "1997-2012", label: "1997-2012" },
+  ];
+
+  const POSITION_CHOICES = [
+    { value: "director", label: "Director" },
+    { value: "manager", label: "Gerente" },
+    { value: "supervisor", label: "Supervisor" },
+    { value: "operator", label: "Operador" },
+    { value: "other", label: "Otro" },
+  ];
 
   const handleValidate = async () => {
     if (!email.trim()) {
@@ -62,9 +88,24 @@ export const GeneralDataScreen: React.FC<GeneralDataScreenProps> = ({
       setError('Debes validar el email antes de continuar');
       return;
     }
+
+    if (!gender) {
+      setError('Debes seleccionar tu género');
+      return;
+    }
+
+    if (!birthRange) {
+      setError('Debes seleccionar tu rango de nacimiento');
+      return;
+    }
+
+    if (!position) {
+      setError('Debes seleccionar tu posición');
+      return;
+    }
     
     setError('');
-    setEmail(email);
+    setEmail(email, gender, birthRange, position);
     onNext();
   };
 
@@ -138,6 +179,48 @@ export const GeneralDataScreen: React.FC<GeneralDataScreenProps> = ({
               <p className="text-green-600 text-sm mt-1">✅ Email válido - Puedes continuar</p>
             )}
           </div>
+
+          <Dropdown
+            id="gender"
+            label="Género"
+            value={gender}
+            options={GENDER_CHOICES}
+            onChange={(value) => {
+              setGender(value);
+              setGeneralData('gender', value);
+              if (error) setError('');
+            }}
+            placeholder="Selecciona tu género"
+            required
+          />
+
+          <Dropdown
+            id="birthRange"
+            label="Rango de Nacimiento"
+            value={birthRange}
+            options={BIRTH_RANGE_CHOICES}
+            onChange={(value) => {
+              setBirthRange(value);
+              setGeneralData('birthRange', value);
+              if (error) setError('');
+            }}
+            placeholder="Selecciona tu rango de nacimiento"
+            required
+          />
+
+          <Dropdown
+            id="position"
+            label="Posición"
+            value={position}
+            options={POSITION_CHOICES}
+            onChange={(value) => {
+              setPosition(value);
+              setGeneralData('position', value);
+              if (error) setError('');
+            }}
+            placeholder="Selecciona tu posición"
+            required
+          />
         </div>
         
         <div className="flex justify-between pt-4">
