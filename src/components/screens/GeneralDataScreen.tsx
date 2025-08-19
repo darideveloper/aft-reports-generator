@@ -2,14 +2,14 @@ import React, { useState } from 'react';
 import { useFormStore } from '../../store/formStore';
 import { validateEmail } from '../../lib/api/email-validation';
 
-interface EmailScreenProps {
+interface GeneralDataScreenProps {
   currentScreen: number;
   totalScreens: number;
   onNext: () => void;
   onPrevious: () => void;
 }
 
-export const EmailScreen: React.FC<EmailScreenProps> = ({
+export const GeneralDataScreen: React.FC<GeneralDataScreenProps> = ({
   currentScreen,
   totalScreens,
   onNext,
@@ -81,9 +81,9 @@ export const EmailScreen: React.FC<EmailScreenProps> = ({
     <div className="max-w-2xl mx-auto p-6 bg-card rounded-lg shadow-lg border border-border">
       <div className="text-center space-y-6">
         <div className="text-4xl">📧</div>
-        <h2 className="text-3xl font-bold text-foreground">Validación de Email</h2>
+        <h2 className="text-3xl font-bold text-foreground">Datos Generales</h2>
         <p className="text-muted-foreground text-lg">
-          Por favor, ingresa tu email para continuar
+          Por favor, ingresa tus datos para continuar
         </p>
         
         {/* Progress Bar */}

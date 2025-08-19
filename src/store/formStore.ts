@@ -75,7 +75,7 @@ interface FormStore {
   isQuestionGroupInfoScreen: () => boolean;
   isQuestionScreen: () => boolean;
   isGuestCodeScreen: () => boolean;
-  isEmailScreen: () => boolean;
+  isGeneralDataScreen: () => boolean;
   getCurrentQuestionGroupIndex: () => number;
   getTotalScreens: () => number;
 }
@@ -246,7 +246,7 @@ export const useFormStore = create<FormStore>((set, get) => ({
     return currentScreen === 1;
   },
 
-  isEmailScreen: () => {
+  isGeneralDataScreen: () => {
     const { currentScreen } = get();
     // Email screen is at index 2
     return currentScreen === 2;
