@@ -54,8 +54,8 @@ export const QuestionScreen: React.FC<QuestionScreenProps> = ({
       </div>
 
       {/* Screen Header */}
-      <div className="mb-8 text-center">
-        <h2 className="text-2xl font-bold text-foreground mb-2">
+      <div className="mb-8">
+        <h2 className="text-2xl font-bold text-foreground mb-2 text-center">
           {screenName}
         </h2>
         {screenDetails && (

@@ -42,8 +42,8 @@ export const QuestionGroupInfoScreen: React.FC<QuestionGroupInfoScreenProps> = (
       </div>
 
       {/* Group Header */}
-      <div className="mb-8 text-center">
-        <h2 className="text-2xl font-bold text-foreground mb-2">
+      <div className="mb-8">
+        <h2 className="text-2xl font-bold text-foreground mb-2 text-center">
           {groupName}
         </h2>
         {groupDetails && (
