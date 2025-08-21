@@ -98,6 +98,13 @@ export const QuestionScreen: React.FC<QuestionScreenProps> = ({
         })}
       </div>
 
+      {/* Show error message if not all questions are answered */}
+      {errors && Object.values(errors).some(error => error !== '') && (
+        <p className='text-destructive text-sm text-center mt-2 mb-0'>
+          Para avanzar hay que contestar todas las preguntas
+        </p>
+      )}
+
       {/* Navigation Buttons */}
       <div className="flex justify-between">
         <button
