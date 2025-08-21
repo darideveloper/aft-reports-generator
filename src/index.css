@@ -520,3 +520,9 @@
 html {
   scroll-behavior: smooth;
 }
+
+/* Custom markdown styles */
+.prose.p-no-my p {
+  margin-top: 0;
+  margin-bottom: 0;
+}

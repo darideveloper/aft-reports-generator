@@ -24,6 +24,7 @@ export interface QuestionGroup {
   survey_percentage: number;
   questions: Question[];
   survey_index: number;
+  modifiers: string[];
 }
 
 export interface Survey {

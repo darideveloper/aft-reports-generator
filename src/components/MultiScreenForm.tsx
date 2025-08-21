@@ -169,9 +169,11 @@ export const MultiScreenForm: React.FC = () => {
     );
   }
 
-  // Question Screen
+  // Get modifiers for the current screen
   const isLastScreen = currentScreen >= (3 + survey.question_groups.length - 1);
+  const modifiers = currentScreenData?.modifiers || [];
   
+  // Render Question Screen
   return (
     <QuestionScreen
       currentScreen={currentScreen}
@@ -185,6 +187,7 @@ export const MultiScreenForm: React.FC = () => {
       onNext={handleNext}
       onPrevious={handlePrevious}
       isLastScreen={isLastScreen}
+      modifiers={modifiers}
     />
   );
 }; 

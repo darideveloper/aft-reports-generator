@@ -7,20 +7,25 @@ interface QuestionComponentProps {
   value: string;
   onChange: (value: string) => void;
   onBlur?: () => void;
+  isGrid?: boolean;
+  isUnique?: boolean;
 }
 
 export const MultiChoiceQuestion: React.FC<QuestionComponentProps> = ({
   question,
   value,
   onChange,
-  onBlur
+  onBlur,
+  isGrid,
+  isUnique
 }) => {
+
   return (
-    <div className="space-y-3">
+    <div className={`${isGrid ? 'grid grid-cols-3 md:grid-cols-2 gap-4' : 'space-y-3'}`}>
       <h3 className="text-lg font-medium text-foreground">
         <MarkdownRenderer 
           content={question.text} 
-          className="prose prose-lg max-w-none"
+          className={`prose prose-lg max-w-none ${isGrid ? 'p-no-my' : ''}`}
         />
       </h3>
       {question.details && (
@@ -31,9 +36,9 @@ export const MultiChoiceQuestion: React.FC<QuestionComponentProps> = ({
           />
         </div>
       )}
-      <div className="space-y-2">
+      <div className={`space-y-2 ${isGrid ? 'flex justify-between col-span-2 md:col-span-1' : ''}`}>
         {question.options.map((option) => (
-          <label key={option.id} className="flex items-center space-x-3 cursor-pointer w-full gap-2">
+          <label key={option.id} className={`flex items-center space-x-3 cursor-pointer gap-2 ${isGrid ? 'inline-block w-auto p-2' : 'w-full'}`}>
             <input
               type="radio"
               name={question.id.toString()}
@@ -43,7 +48,7 @@ export const MultiChoiceQuestion: React.FC<QuestionComponentProps> = ({
               onBlur={onBlur}
               className="!h-[18px] !w-[18px] !m-0 border-input text-primary focus:ring-ring focus:ring-2 focus:ring-offset-2 focus:ring-offset-background radio-brand-colors"
             />
-            <span className="text-foreground w-[90%] inline-block">{option.text}</span>
+            <span className={`text-foreground w-[90%] ${isGrid ? 'hidden' : 'inline-block'}`}>{option.text}</span>
           </label>
         ))}
       </div>
@@ -56,7 +61,9 @@ export const QuestionRenderer: React.FC<{
   value: string;
   onChange: (value: string) => void;
   onBlur?: () => void;
-}> = ({ question, value, onChange, onBlur }) => {
+  isGrid?: boolean;
+  isUnique?: boolean;
+}> = ({ question, value, onChange, onBlur, isGrid, isUnique }) => {
   // All questions are now multiple choice
   return (
     <MultiChoiceQuestion
@@ -64,6 +71,8 @@ export const QuestionRenderer: React.FC<{
       value={value}
       onChange={onChange}
       onBlur={onBlur}
+      isGrid={isGrid}
+      isUnique={isUnique}
     />
   );
 }; 
