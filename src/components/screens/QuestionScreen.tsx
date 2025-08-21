@@ -32,15 +32,28 @@ export const QuestionScreen: React.FC<QuestionScreenProps> = ({
   isLastScreen,
   modifiers,
 }) => {
+  
+  // States
   const [isGrid, setIsGrid] = useState(false)
   const [isUnique, setIsUnique] = useState(false)
   const [labels, setLabels] = useState<string[]>([])
+  const [hasDuplicatedOptions, setHasDuplicatedOptions] = useState(false)
+
+  // Data
+  const currentQuestionsIds = questions.map((question) => question.id)
+
 
   // Scroll to top when screen loads or changes
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: 'smooth' })
 
     // Screen modifiers
+
+    // Reset modifiers when loads the screen
+    setIsGrid(false)
+    setIsUnique(false)
+    setLabels([])
+    setHasDuplicatedOptions(false)
 
     // Show all question of the grup, in a single grid
     function applyGridModifier() {
@@ -53,7 +66,6 @@ export const QuestionScreen: React.FC<QuestionScreenProps> = ({
     }
 
     function applyUniqueModifier() {
-      console.log('applyUniqueModifier')
       setIsUnique(true)
     }
 
@@ -67,6 +79,20 @@ export const QuestionScreen: React.FC<QuestionScreenProps> = ({
       ]?.()
     }
   }, [currentScreen])
+
+  useEffect(() => {
+
+    const currentAnswers = responses.filter((response) => {
+      return currentQuestionsIds.includes(response.questionId)
+    }).map((response) => response.answer)
+
+    const duplicatedAnswers = currentAnswers.filter((answer, index, self) =>
+      self.indexOf(answer) !== index
+    )
+
+    setHasDuplicatedOptions(duplicatedAnswers.length > 0)
+
+  }, [responses])
 
   return (
     <div className='max-w-4xl mx-auto p-6 bg-card rounded-lg shadow-lg border border-border'>
@@ -173,6 +199,13 @@ export const QuestionScreen: React.FC<QuestionScreenProps> = ({
         </p>
       )}
 
+      {/* Error message unique with duplicated options */}
+      {hasDuplicatedOptions && isUnique && (
+        <p className='text-destructive text-sm text-center mt-2 mb-0'>
+          No se puede seleccionar la misma opción en más de una pregunta
+        </p>
+      )}
+
       {/* Navigation Buttons */}
       <div className='flex justify-between'>
         <button
@@ -186,41 +219,23 @@ export const QuestionScreen: React.FC<QuestionScreenProps> = ({
           Anterior
         </button>
 
-        {isLastScreen ? (
-          <button
-            onClick={onNext}
-            className='px-6 py-2 rounded-lg transition-colors hover:opacity-80 focus:ring-2 focus:ring-ring focus:ring-offset-2'
-            style={{
-              backgroundColor: 'var(--accent)',
-              color: 'var(--accent-foreground)',
-            }}
-            onMouseEnter={(e) =>
-              (e.currentTarget.style.backgroundColor = 'var(--primary)')
-            }
-            onMouseLeave={(e) =>
-              (e.currentTarget.style.backgroundColor = 'var(--accent)')
-            }
-          >
-            Enviar
-          </button>
-        ) : (
-          <button
-            onClick={onNext}
-            className='px-6 py-2 rounded-lg transition-colors hover:opacity-80 focus:ring-2 focus:ring-ring focus:ring-offset-2'
-            style={{
-              backgroundColor: 'var(--primary)',
-              color: 'var(--primary-foreground)',
-            }}
-            onMouseEnter={(e) =>
-              (e.currentTarget.style.backgroundColor = 'var(--secondary)')
-            }
-            onMouseLeave={(e) =>
-              (e.currentTarget.style.backgroundColor = 'var(--primary)')
-            }
-          >
-            Siguiente
-          </button>
-        )}
+        <button
+          onClick={onNext}
+          className='px-6 py-2 rounded-lg transition-colors hover:opacity-80 focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:opacity-50'
+          style={{
+            backgroundColor: isLastScreen ? 'var(--accent)' : 'var(--primary)',
+            color: isLastScreen ? 'var(--accent-foreground)' : 'var(--primary-foreground)',
+          }}
+          disabled={hasDuplicatedOptions && isUnique}
+          onMouseEnter={(e) =>
+            (e.currentTarget.style.backgroundColor = 'var(--secondary)')
+          }
+          onMouseLeave={(e) =>
+            (e.currentTarget.style.backgroundColor = isLastScreen ? 'var(--accent)' : 'var(--primary)')
+          }
+        >
+          {isLastScreen ? 'Enviar' : 'Siguiente'}
+        </button>
       </div>
     </div>
   )

@@ -2,7 +2,6 @@ export const validateInvitationCode = async (invitationCode: string): Promise<bo
   try {
     const apiEndpoint = import.meta.env.VITE_API_ENDPOINT
     const apiKey = import.meta.env.VITE_API_KEY;
-    console.log({apiKey})
     
     if (!apiKey) {
       console.error('API key not found in environment variables');
