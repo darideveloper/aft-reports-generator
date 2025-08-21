@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useFormStore } from '../store/formStore';
 import { SurveyInfoScreen } from './screens/SurveyInfoScreen';
-import { QuestionGroupInfoScreen } from './screens/QuestionGroupInfoScreen';
 import { QuestionScreen } from './screens/QuestionScreen';
 import { GuestCodeScreen } from './screens/GuestCodeScreen';
 import { GeneralDataScreen } from './screens/GeneralDataScreen';
@@ -21,7 +20,6 @@ export const MultiScreenForm: React.FC = () => {
     getCurrentScreenQuestions,
     getCurrentScreenData,
     isSurveyInfoScreen,
-    isQuestionGroupInfoScreen,
     isGuestCodeScreen,
     isGeneralDataScreen,
     getTotalScreens,
@@ -90,8 +88,8 @@ export const MultiScreenForm: React.FC = () => {
   };
 
   const validateCurrentScreen = () => {
-    // Survey info screen, guest code screen, email screen, and question group info screens don't need validation
-    if (isSurveyInfoScreen() || isGuestCodeScreen() || isGeneralDataScreen() || isQuestionGroupInfoScreen()) {
+    // Survey info screen, guest code screen, and email screen don't need validation
+    if (isSurveyInfoScreen() || isGuestCodeScreen() || isGeneralDataScreen()) {
       return true;
     }
 
@@ -158,19 +156,7 @@ export const MultiScreenForm: React.FC = () => {
     );
   }
 
-  // Question Group Info Screen
-  if (isQuestionGroupInfoScreen()) {
-    return (
-      <QuestionGroupInfoScreen
-        currentScreen={currentScreen}
-        totalScreens={getTotalScreens()}
-        groupName={currentScreenData?.name || ''}
-        groupDetails={currentScreenData?.details || ''}
-        onNext={handleNext}
-        onPrevious={handlePrevious}
-      />
-    );
-  }
+
 
   // Completion Screen
   if (isComplete) {
@@ -184,7 +170,7 @@ export const MultiScreenForm: React.FC = () => {
   }
 
   // Question Screen
-  const isLastScreen = currentScreen >= (3 + survey.question_groups.length * 2 - 2);
+  const isLastScreen = currentScreen >= (3 + survey.question_groups.length - 1);
   
   return (
     <QuestionScreen
