@@ -43,7 +43,6 @@ export const GeneralDataScreen: React.FC<GeneralDataScreenProps> = ({
     { value: 'director', label: 'Director' },
     { value: 'manager', label: 'Gerente' },
     { value: 'supervisor', label: 'Supervisor' },
-    { value: 'operator', label: 'Operador' },
     { value: 'other', label: 'Otro' },
   ]
 
