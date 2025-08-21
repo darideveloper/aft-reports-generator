@@ -33,7 +33,7 @@ export const MultiChoiceQuestion: React.FC<QuestionComponentProps> = ({
       )}
       <div className="space-y-2">
         {question.options.map((option) => (
-          <label key={option.id} className="flex items-center space-x-3 cursor-pointer">
+          <label key={option.id} className="flex items-center space-x-3 cursor-pointer w-full gap-2">
             <input
               type="radio"
               name={question.id.toString()}
@@ -41,9 +41,9 @@ export const MultiChoiceQuestion: React.FC<QuestionComponentProps> = ({
               checked={value === option.text}
               onChange={(e) => onChange(e.target.value)}
               onBlur={onBlur}
-              className="h-4 w-4 border-input text-primary focus:ring-ring focus:ring-2 focus:ring-offset-2 focus:ring-offset-background radio-brand-colors"
+              className="!h-[18px] !w-[18px] !m-0 border-input text-primary focus:ring-ring focus:ring-2 focus:ring-offset-2 focus:ring-offset-background radio-brand-colors"
             />
-            <span className="text-foreground">{option.text}</span>
+            <span className="text-foreground w-[90%] inline-block">{option.text}</span>
           </label>
         ))}
       </div>
