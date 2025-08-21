@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { QuestionRenderer } from '../QuestionComponents';
 import { MarkdownRenderer } from '../ui/markdown-renderer';
 import type { Question, FormResponse } from '../../store/formStore';
@@ -30,6 +30,11 @@ export const QuestionScreen: React.FC<QuestionScreenProps> = ({
   onPrevious,
   isLastScreen
 }) => {
+  // Scroll to top when screen loads or changes
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }, [currentScreen]);
+
   return (
     <div className="max-w-4xl mx-auto p-6 bg-card rounded-lg shadow-lg border border-border">
       {/* Progress Bar */}
