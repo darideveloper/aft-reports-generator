@@ -2,6 +2,7 @@ export const validateEmail = async (email: string): Promise<boolean> => {
   try {
     const apiEndpoint = import.meta.env.VITE_API_ENDPOINT
     const apiKey = import.meta.env.VITE_API_KEY;
+    const surveyId = import.meta.env.VITE_SURVEY_ID;
     
     if (!apiKey) {
       console.error('API key not found in environment variables');
@@ -16,7 +17,7 @@ export const validateEmail = async (email: string): Promise<boolean> => {
       },
       body: JSON.stringify({
         email: email,
-        survey_id: 1,
+        survey_id: surveyId,
       }),
     });
 
