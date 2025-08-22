@@ -83,6 +83,7 @@ interface FormStore {
   isGeneralDataScreen: () => boolean;
   getCurrentQuestionGroupIndex: () => number;
   getTotalScreens: () => number;
+  getAllSurveyQuestions: () => Question[];
 }
 
 
@@ -274,6 +275,12 @@ export const useFormStore = create<FormStore>((set, get) => ({
     if (!survey) return 0;
     // Survey info (1) + Guest code (1) + Email (1) + Question screens (question_groups.length)
     return 3 + survey.question_groups.length;
+  },
+
+  getAllSurveyQuestions: () => {
+    const { survey } = get();
+    if (!survey) return [];
+    return survey.question_groups.flatMap(group => group.questions);
   },
 
   resetForm: () => {

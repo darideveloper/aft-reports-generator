@@ -1,7 +1,9 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import type { Question, FormResponse } from '../../store/formStore';
 import { useFormStore } from '../../store/formStore';
 import { MarkdownRenderer } from '../ui/markdown-renderer';
+import { submitSurveyResponse } from '../../lib/api/response';
+import Swal from 'sweetalert2';
 
 interface CompletionScreenProps {
   responses: FormResponse[];
@@ -12,11 +14,79 @@ export const CompletionScreen: React.FC<CompletionScreenProps> = ({
   responses,
   surveyQuestions
 }) => {
-  const { guestCodeResponse } = useFormStore();
+  const { guestCodeResponse, emailResponse, survey, getAllSurveyQuestions } = useFormStore();
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const hasSubmitted = useRef(false);
+  
+  // Get all survey questions if not provided as props
+  const allQuestions = surveyQuestions.length > 0 ? surveyQuestions : getAllSurveyQuestions();
   
   useEffect(() => {
+    // Scroll to top
     window.scrollTo({ top: 0, behavior: 'smooth' });
+    
+    // Submit responses to API in background only once
+    if (!hasSubmitted.current) {
+      hasSubmitted.current = true;
+      submitResponsesToAPI();
+    }
   }, []);
+  
+  const submitResponsesToAPI = async () => {
+    if (!guestCodeResponse?.guestCode || !emailResponse?.email || !survey) {
+      console.error('Missing required data for API submission');
+      return;
+    }
+    
+    setIsSubmitting(true);
+    
+    try {
+      // Extract option IDs from responses
+      const optionIds = responses
+        .filter(response => response.optionId !== null && response.optionId !== undefined)
+        .map(response => response.optionId as number);
+      
+      // Prepare participant data
+      const participant = {
+        gender: emailResponse.gender || '',
+        birth_range: emailResponse.birthRange || '',
+        position: emailResponse.position || '',
+        name: emailResponse.email.split('@')[0], // Use email prefix as name
+        email: emailResponse.email
+      };
+      
+      // Submit to API
+      await submitSurveyResponse(
+        guestCodeResponse.guestCode,
+        survey.id,
+        participant,
+        optionIds
+      );
+      
+      // Show success message
+      Swal.fire({
+        icon: 'success',
+        title: '¡Respuestas Guardadas!',
+        text: 'Tus respuestas han sido guardadas exitosamente.',
+        confirmButtonText: 'Entendido',
+        confirmButtonColor: 'var(--primary)'
+      });
+      
+    } catch (error) {
+      console.error('Error submitting responses:', error);
+      
+      // Show error message
+      Swal.fire({
+        icon: 'error',
+        title: 'Error al Guardar',
+        text: 'Hubo un problema al guardar tus respuestas. Por favor, contacta al administrador.',
+        confirmButtonText: 'Entendido',
+        confirmButtonColor: 'var(--primary)'
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
   
   return (
     <div className="max-w-2xl mx-auto p-6 bg-card rounded-lg shadow-lg border border-border">
@@ -54,6 +124,14 @@ export const CompletionScreen: React.FC<CompletionScreenProps> = ({
           </p>
         </div>
         
+        {isSubmitting && (
+          <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+            <p className="text-blue-700 font-medium">
+              Enviando respuestas al servidor...
+            </p>
+          </div>
+        )}
+        
         {guestCodeResponse && (
           <div className="bg-muted border border-border rounded-lg p-4">
             <p className="text-foreground font-medium">
@@ -64,7 +142,7 @@ export const CompletionScreen: React.FC<CompletionScreenProps> = ({
         
         <div className="text-left space-y-4 bg-muted p-6 rounded-lg">
           {responses.map((response) => {
-            const question = surveyQuestions.find(q => q.id === response.questionId);
+            const question = allQuestions.find(q => q.id === response.questionId);
             const option = question?.options.find(opt => opt.id === response.optionId);
             return (
               <div key={response.questionId} className="border-b border-border pb-3 last:border-b-0">
