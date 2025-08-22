@@ -84,11 +84,12 @@ export const QuestionScreen: React.FC<QuestionScreenProps> = ({
 
     const currentAnswers = responses.filter((response) => {
       return currentQuestionsIds.includes(response.questionId)
-    }).map((response) => response.optionId)
+    }).map((response) => response.answer)
 
     const duplicatedAnswers = currentAnswers.filter((answer, index, self) =>
       self.indexOf(answer) !== index
     )
+    console.log({duplicatedAnswers, currentAnswers})
 
     setHasDuplicatedOptions(duplicatedAnswers.length > 0)
 
