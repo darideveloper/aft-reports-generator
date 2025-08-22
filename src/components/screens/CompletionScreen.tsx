@@ -65,6 +65,7 @@ export const CompletionScreen: React.FC<CompletionScreenProps> = ({
         <div className="text-left space-y-4 bg-muted p-6 rounded-lg">
           {responses.map((response) => {
             const question = surveyQuestions.find(q => q.id === response.questionId);
+            const option = question?.options.find(opt => opt.id === response.optionId);
             return (
               <div key={response.questionId} className="border-b border-border pb-3 last:border-b-0">
                 <h4 className="font-medium text-foreground">
@@ -73,7 +74,7 @@ export const CompletionScreen: React.FC<CompletionScreenProps> = ({
                     className="prose prose-sm max-w-none"
                   />
                 </h4>
-                <p className="text-muted-foreground mt-1">{response.answer}</p>
+                <p className="text-muted-foreground mt-1">{option?.text || response.answer}</p>
               </div>
             );
           })}

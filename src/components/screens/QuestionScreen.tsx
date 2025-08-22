@@ -11,7 +11,7 @@ interface QuestionScreenProps {
   questions: Question[]
   responses: FormResponse[]
   errors: Record<number, string>
-  onAnswerChange: (questionId: number, value: string) => void
+  onAnswerChange: (optionId: number, optionText: string) => void
   onNext: () => void
   onPrevious: () => void
   isLastScreen: boolean
@@ -84,7 +84,7 @@ export const QuestionScreen: React.FC<QuestionScreenProps> = ({
 
     const currentAnswers = responses.filter((response) => {
       return currentQuestionsIds.includes(response.questionId)
-    }).map((response) => response.answer)
+    }).map((response) => response.optionId)
 
     const duplicatedAnswers = currentAnswers.filter((answer, index, self) =>
       self.indexOf(answer) !== index
@@ -162,7 +162,7 @@ export const QuestionScreen: React.FC<QuestionScreenProps> = ({
         <div className={`space-y-8 mb-8 ${isGrid ? 'min-w-lg' : ''}`}>
           {questions.map((question) => {
             const response = responses.find((r) => r.questionId === question.id)
-            const value = response?.answer || ''
+            const value = response?.optionId || null
 
             return (
               <div
@@ -174,7 +174,7 @@ export const QuestionScreen: React.FC<QuestionScreenProps> = ({
                 <QuestionRenderer
                   question={question}
                   value={value}
-                  onChange={(value) => onAnswerChange(question.id, value)}
+                  onChange={(optionId, optionText) => onAnswerChange(optionId, optionText)}
                   isGrid={isGrid}
                   isUnique={isUnique}
                 />

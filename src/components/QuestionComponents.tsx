@@ -4,8 +4,8 @@ import { MarkdownRenderer } from './ui/markdown-renderer';
 
 interface QuestionComponentProps {
   question: Question;
-  value: string;
-  onChange: (value: string) => void;
+  value: number | null; // Changed to option ID
+  onChange: (optionId: number, optionText: string) => void; // Changed to pass both ID and text
   onBlur?: () => void;
   isGrid?: boolean;
   isUnique?: boolean;
@@ -43,8 +43,8 @@ export const MultiChoiceQuestion: React.FC<QuestionComponentProps> = ({
               type="radio"
               name={question.id.toString()}
               value={option.text}
-              checked={value === option.text}
-              onChange={(e) => onChange(e.target.value)}
+              checked={value === option.id}
+              onChange={(e) => onChange(option.id, option.text)}
               onBlur={onBlur}
               className="!h-[18px] !w-[18px] !m-0 border-input text-primary focus:ring-ring focus:ring-2 focus:ring-offset-2 focus:ring-offset-background radio-brand-colors"
             />
@@ -58,8 +58,8 @@ export const MultiChoiceQuestion: React.FC<QuestionComponentProps> = ({
 
 export const QuestionRenderer: React.FC<{
   question: Question;
-  value: string;
-  onChange: (value: string) => void;
+  value: number | null; // Changed to option ID
+  onChange: (optionId: number, optionText: string) => void; // Changed to pass both ID and text
   onBlur?: () => void;
   isGrid?: boolean;
   isUnique?: boolean;

@@ -38,6 +38,7 @@ export interface Survey {
 
 export interface FormResponse {
   questionId: number;
+  optionId: number;
   answer: string;
 }
 
@@ -65,7 +66,7 @@ interface FormStore {
   // Actions
   setCurrentScreen: (screen: number) => void;
   addResponse: (response: FormResponse) => void;
-  updateResponse: (questionId: number, answer: string) => void;
+  updateResponse: (questionId: number, optionId: number, answer: string) => void;
   setGuestCode: (guestCode: string) => void;
   setEmail: (email: string, gender?: string, birthRange?: string, position?: string) => void;
   setGeneralData: (field: 'gender' | 'birthRange' | 'position', value: string) => void;
@@ -128,8 +129,8 @@ export const useFormStore = create<FormStore>((set, get) => ({
     }
   },
 
-  updateResponse: (questionId: number, answer: string) => {
-    get().addResponse({ questionId, answer });
+  updateResponse: (questionId: number, optionId: number, answer: string) => {
+    get().addResponse({ questionId, optionId, answer });
   },
 
   setGuestCode: (guestCode: string) => {
@@ -197,7 +198,7 @@ export const useFormStore = create<FormStore>((set, get) => ({
     // Check if all required questions on the current screen are answered
     for (const question of currentScreenData.questions) {
       const response = responses.find(r => r.questionId === question.id);
-      if (!response || !response.answer.trim()) {
+      if (!response || response.optionId === null || response.optionId === undefined) {
         return false;
       }
     }

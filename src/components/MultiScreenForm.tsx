@@ -78,12 +78,19 @@ export const MultiScreenForm: React.FC = () => {
     );
   }
 
-  const handleAnswerChange = (questionId: number, value: string) => {
-    updateResponse(questionId, value);
+  const handleAnswerChange = (optionId: number, optionText: string) => {
+    // Find the question ID from the current screen questions
+    const question = currentScreenQuestions.find(q => 
+      q.options.some(opt => opt.id === optionId)
+    );
     
-    // Clear error when user starts typing
-    if (errors[questionId]) {
-      setErrors(prev => ({ ...prev, [questionId]: '' }));
+    if (question) {
+      updateResponse(question.id, optionId, optionText);
+      
+      // Clear error when user selects an option
+      if (errors[question.id]) {
+        setErrors(prev => ({ ...prev, [question.id]: '' }));
+      }
     }
   };
 
@@ -98,7 +105,7 @@ export const MultiScreenForm: React.FC = () => {
 
     for (const question of currentScreenQuestions) {
       const response = responses.find(r => r.questionId === question.id);
-      if (!response || !response.answer.trim()) {
+      if (!response || response.optionId === null || response.optionId === undefined) {
         newErrors[question.id] = 'Esta pregunta es obligatoria';
         hasErrors = true;
       }
