@@ -2,9 +2,15 @@ import { test } from '@playwright/test';
 import { SurveyPage } from './survey';
 
 // Get guest code from .env variables
-const guestCode = process.env.GUEST_CODE || '';
-const invalidEmail = process.env.INVALID_EMAIL || '';
-console.log('guestCode', guestCode);
+const guestCode = process.env.TESTING_GUEST_CODE || '';
+const invalidEmail = process.env.TESTING_INVALID_EMAIL || '';
+const validEmail = process.env.TESTING_VALID_EMAIL || '';
+
+console.warn(`Before run tests, be sure that these emails are in the database:
+  - ${invalidEmail} (invalid)
+  - ${validEmail} (valid)
+`)
+
 
 test('invalid_guest_code', async ({ page }) => {
   const survey = new SurveyPage(page);
