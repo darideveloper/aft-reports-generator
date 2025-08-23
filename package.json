@@ -8,9 +8,11 @@
     "dev:prod": "vite --mode production",
     "build": "vite build",
     "lint": "eslint .",
-    "preview": "vite preview",
-    "test": "playwright test --config=playwright.config.ts",
-    "test:ui": "playwright test --ui --config=playwright.config.ts"
+    "preview": "vite preview --port 4173",
+    "test": "NODE_ENV=local playwright test --config=playwright.config.ts",
+    "test:ui": "NODE_ENV=local playwright test --ui --config=playwright.config.ts",
+    "test:prod": "NODE_ENV=production playwright test --config=playwright.config.ts",
+    "test:prod:ui": "NODE_ENV=production playwright test --ui --config=playwright.config.ts"
   },
   "dependencies": {
     "@radix-ui/react-slot": "^1.2.3",

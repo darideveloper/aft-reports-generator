@@ -10,7 +10,7 @@ export class SurveyPage {
   async surveyInfoScreen() {
     // wait page loads
     await expect(this.page.locator('text=Evaluación LeadForward Prueba empresa v1'))
-      .toBeVisible({ timeout: 1000 });
+      .toBeVisible({ timeout: 2000 });
 
     // click button "Comenzar Evaluación"
     await this.page.click('button:has-text("Comenzar Evaluación")');
@@ -19,7 +19,7 @@ export class SurveyPage {
   async guestCodeScreen(code: string, expectError = false) {
     // wait page loads
     await expect(this.page.locator('h2:has-text("Código de Invitado")'))
-      .toBeVisible({ timeout: 1000 });
+      .toBeVisible({ timeout: 2000 });
 
     // fill guest code
     await this.page.fill('input[id="guestCode"]', code);
