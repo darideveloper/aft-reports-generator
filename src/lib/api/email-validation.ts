@@ -27,13 +27,8 @@ export const validateEmail = async (email: string): Promise<boolean> => {
     }
 
     const result = await response.json();
-    
-    // You can adjust this logic based on your actual API response structure
-    if (result.success || result.valid || response.status === 200) {
-      return true;
-    }
-    
-    return false;
+    console.log(result);
+    return !result.data.has_answer;
   } catch (error) {
     console.error('Error validating email:', error);
     return false;
