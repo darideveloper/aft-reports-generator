@@ -177,7 +177,6 @@ export const QuestionScreen: React.FC<QuestionScreenProps> = ({
                   value={value}
                   onChange={(optionId, optionText) => onAnswerChange(optionId, optionText)}
                   isGrid={isGrid}
-                  isUnique={isUnique}
                 />
 
                 {/* Error Message */}

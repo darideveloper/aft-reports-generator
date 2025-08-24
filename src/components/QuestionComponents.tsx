@@ -8,7 +8,6 @@ interface QuestionComponentProps {
   onChange: (optionId: number, optionText: string) => void; // Changed to pass both ID and text
   onBlur?: () => void;
   isGrid?: boolean;
-  isUnique?: boolean;
 }
 
 export const MultiChoiceQuestion: React.FC<QuestionComponentProps> = ({
@@ -17,11 +16,10 @@ export const MultiChoiceQuestion: React.FC<QuestionComponentProps> = ({
   onChange,
   onBlur,
   isGrid,
-  isUnique
 }) => {
 
   return (
-    <div className={`${isGrid ? 'grid grid-cols-3 md:grid-cols-2 gap-4' : 'space-y-3'}`}>
+    <div className={`question-container ${isGrid ? 'grid grid-cols-3 md:grid-cols-2 gap-4' : 'space-y-3'}`}>
       <h3 className="text-lg font-medium text-foreground">
         <MarkdownRenderer 
           content={question.text} 
@@ -62,8 +60,7 @@ export const QuestionRenderer: React.FC<{
   onChange: (optionId: number, optionText: string) => void; // Changed to pass both ID and text
   onBlur?: () => void;
   isGrid?: boolean;
-  isUnique?: boolean;
-}> = ({ question, value, onChange, onBlur, isGrid, isUnique }) => {
+}> = ({ question, value, onChange, onBlur, isGrid }) => {
   // All questions are now multiple choice
   return (
     <MultiChoiceQuestion
@@ -72,7 +69,6 @@ export const QuestionRenderer: React.FC<{
       onChange={onChange}
       onBlur={onBlur}
       isGrid={isGrid}
-      isUnique={isUnique}
     />
   );
 }; 
