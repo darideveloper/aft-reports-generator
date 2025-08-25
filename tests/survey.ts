@@ -10,6 +10,12 @@ export class SurveyPage {
 
   constructor(private page: Page) {}
 
+  async #waitClickButton(buttonSelector: string) {
+    const button = this.page.locator(buttonSelector)
+    await expect(button).toBeVisible({ timeout: 3000 })
+    await button.click()
+  }
+
   async goto() {
     await this.page.goto('/')
   }
@@ -193,9 +199,9 @@ export class SurveyPage {
     await this.#questionValidateNextButton(lastScreen, disableNext)
   }
 
-  async deleteDashboardParticipant(username: string) {
+  async deleteDashboardParticipant(email: string) {
     // Open dashboard
-    await this.page.goto(dashboardPariticipantsUrl)
+    await this.page.goto(dashboardPariticipantsUrl + `?q=${email}`)
 
     // Login
     await this.page.fill('input[name="username"]', dashboardUser)
@@ -208,17 +214,17 @@ export class SurveyPage {
     ).toBeVisible()
 
     // Validate if "valid-test" its in page, as link  (no error if not found)
-    const links = await this.page.locator('a', { hasText: username })
+    const links = await this.page.locator('.field-name a')
 
     if ((await links.count()) > 0) {
       // Open details page
       await links.first().click()
 
-      // Click in delete button
-      await this.page.locator('button:has-text("Eliminar")').click()
+      // Wait and click delete button
+      await this.#waitClickButton('a:has-text("Eliminar")')
 
-      // Click in confirm button
-      await this.page.locator('button:has-text("Sí, estoy seguro")').click()
+      // Wait and click confirm button
+      await this.#waitClickButton('input[value="Si, estoy seguro"]')
     }
   }
 }
