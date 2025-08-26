@@ -152,7 +152,7 @@ export const CompletionScreen: React.FC<CompletionScreenProps> = ({
                     className="prose prose-sm max-w-none"
                   />
                 </h4>
-                <p className="text-muted-foreground mt-1">{option?.text || response.answer}</p>
+                <p className="answer text-muted-foreground mt-1">{option?.text || response.answer}</p>
               </div>
             );
           })}

@@ -1,7 +1,6 @@
-import { ElementHandle, Page, expect } from '@playwright/test'
+import { ElementHandle, Locator, Page, expect } from '@playwright/test'
 
-const dashboardPariticipantsUrl =
-  process.env.TESTING_DASHBOARD_PARTICIPANTS_URL || ''
+const dashboardUrl = process.env.TESTING_DASHBOARD_URL || ''
 const dashboardUser = process.env.TESTING_DASHBOARD_USER || ''
 const dashboardPassword = process.env.TESTING_DASHBOARD_PASSWORD || ''
 
@@ -118,7 +117,11 @@ export class SurveyPage {
     return questionTitleText
   }
 
-  async questionScreen(title, lastScreen = false, disableNext = false) {
+  async questionScreen(
+    title: string,
+    lastScreen: boolean = false,
+    disableNext: boolean = false
+  ) {
     // Validate title in screen
     await this.#questionScreenValidateTitle(title)
 
@@ -158,6 +161,7 @@ export class SurveyPage {
     // Loop questions
     const questionSelector = `.questions .question-container`
     const questions = await this.page.$$(questionSelector)
+    const selectedAnswersScreen: string[] = []
     for (const question of questions) {
       // Select random answer and save value
       const questionTitleText = await this.#questionValidateH3(question)
@@ -170,8 +174,6 @@ export class SurveyPage {
       let randomOption: ElementHandle<Element> | null = null
       let randomOptionValue = ''
       if (uniqueResponses) {
-        const selectedAnswersScreen: string[] = []
-
         // Get random response without repited responses
         while (true) {
           randomOption = options[Math.floor(Math.random() * options.length)]
@@ -188,43 +190,106 @@ export class SurveyPage {
 
       await randomOption?.click()
       this.selectedAnswers[questionTitleText || ''] = randomOptionValue
+      selectedAnswersScreen.push(randomOptionValue)
     }
 
     // Validate error message "No se puede seleccionar la misma opción en más de una pregunta"
-    const error = this.page.locator(
-      'p.text-destructive:has-text("No se puede seleccionar la misma opción en más de una pregunta")'
-    )
-    await expect(error).toBeVisible({ timeout: 1000 })
+    if (!uniqueResponses) {
+      const error = this.page.locator(
+        'p.text-destructive:has-text("No se puede seleccionar la misma opción en más de una pregunta")'
+      )
+      await expect(error).toBeVisible({ timeout: 1000 })
+    }
 
     await this.#questionValidateNextButton(lastScreen, disableNext)
   }
 
-  async deleteDashboardParticipant(email: string) {
-    // Open dashboard
-    await this.page.goto(dashboardPariticipantsUrl + `?q=${email}`)
+  async #loginDashboard() {
+    // Load dashboard page
+    await this.page.goto(dashboardUrl)
 
-    // Login
+    // Wait to load login page
+    await expect(
+      this.page.locator('p:has-text("Bienvenido a AFT Reports Generator")')
+    ).toBeVisible({ timeout: 3000 })
+
+    // Login with credentials
     await this.page.fill('input[name="username"]', dashboardUser)
     await this.page.fill('input[name="password"]', dashboardPassword)
     await this.page.click('button[type="submit"]')
+  }
+
+  async dashboardSearchUser(
+    email: string,
+    login: boolean = true
+  ): Promise<{ count: number; usersLinks: Locator[] }> {
+    // Login and search user
+    if (login) {
+      await this.#loginDashboard()
+    }
+
+    // Open participants page
+    await this.page.goto(dashboardUrl + `/admin/survey/participant/?q=${email}`)
 
     // Validage page h1 "Participantes"
     await expect(
       this.page.locator('h1:has-text("Participantes")')
     ).toBeVisible()
 
-    // Validate if "valid-test" its in page, as link  (no error if not found)
-    const links = await this.page.locator('.field-name a')
+    // Get users found but not fields it no data
+    const users = this.page.locator('.field-name a')
+    const count = await users
+      .first()
+      .waitFor({ timeout: 2000 })
+      .then(() => users.count())
+      .catch(() => 0)
+    return {
+      count: count,
+      usersLinks: await users.all(),
+    }
+  }
 
-    if ((await links.count()) > 0) {
-      // Open details page
-      await links.first().click()
+  async dashboardDeleteParticipant(email: string) {
+    // login and search user
+    const { count: userCount, usersLinks } = await this.dashboardSearchUser(
+      email
+    )
+
+    if (userCount > 0) {
+      // Click in first user link
+      await usersLinks[0].click()
 
       // Wait and click delete button
       await this.#waitClickButton('a:has-text("Eliminar")')
 
       // Wait and click confirm button
       await this.#waitClickButton('input[value="Si, estoy seguro"]')
+    }
+  }
+
+  async confirmationScreen() {
+    // Validate confirmation sweet alert
+    await expect(
+      this.page.locator('h2.swal2-title:has-text("¡Respuestas Guardadas!")')
+    ).toBeVisible({ timeout: 3000 })
+
+    // Click button "Entendido"
+    await this.#waitClickButton('button.swal2-confirm:has-text("Entendido")')
+
+    // Validate page h2
+    await expect(
+      this.page.locator('h2:has-text("¡Formulario Completado!")')
+    ).toBeVisible({ timeout: 3000 })
+
+    // Validate selected responses in page
+    for (const [question, answer] of Object.entries(this.selectedAnswers)) {
+      // Validate question title
+      const questionTitle = await this.page.locator(`h4 p:has-text("${question.trim().split('\n')[0]}")`)
+      await expect(questionTitle).toBeVisible({ timeout: 3000 })
+
+      // Validate answer
+      const answerElem = this.page.locator(`p.answer:has-text("${answer.trim()}")`)
+      await expect(answerElem.first()).toBeVisible({ timeout: 3000 })
     }
   }
 }

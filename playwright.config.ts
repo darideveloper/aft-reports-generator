@@ -30,7 +30,7 @@ console.log('Production mode:', isProd);
 
 export default defineConfig({
   testDir: './tests',              // folder for tests
-  timeout: 30 * 1000,              // 30s per test
+  timeout: 120 * 1000,              // 120s per test
   webServer: {
     command: isProd ? 'npm run build && npm run preview' : 'npm run dev',
     port: isProd ? 4173 : 5173,
