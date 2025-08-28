@@ -1,26 +1,20 @@
 import React, { useEffect, useState, useRef } from 'react';
-import type { Question, FormResponse } from '../../store/formStore';
+import type { FormResponse } from '../../store/formStore';
 import { useFormStore } from '../../store/formStore';
-import { MarkdownRenderer } from '../ui/markdown-renderer';
 import { submitSurveyResponse } from '../../lib/api/response';
 import Swal from 'sweetalert2';
 
 interface CompletionScreenProps {
   responses: FormResponse[];
-  surveyQuestions: Question[];
 }
 
 export const CompletionScreen: React.FC<CompletionScreenProps> = ({
   responses,
-  surveyQuestions
 }) => {
-  const { guestCodeResponse, emailResponse, survey, getAllSurveyQuestions } = useFormStore();
+  const { guestCodeResponse, emailResponse, survey } = useFormStore();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const hasSubmitted = useRef(false);
-  
-  // Get all survey questions if not provided as props
-  const allQuestions = surveyQuestions.length > 0 ? surveyQuestions : getAllSurveyQuestions();
-  
+    
   useEffect(() => {
     // Scroll to top
     window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -140,23 +134,6 @@ export const CompletionScreen: React.FC<CompletionScreenProps> = ({
           </div>
         )}
         
-        <div className="text-left space-y-4 bg-muted p-6 rounded-lg">
-          {responses.map((response) => {
-            const question = allQuestions.find(q => q.id === response.questionId);
-            const option = question?.options.find(opt => opt.id === response.optionId);
-            return (
-              <div key={response.questionId} className="border-b border-border pb-3 last:border-b-0">
-                <h4 className="font-medium text-foreground">
-                  <MarkdownRenderer 
-                    content={question?.text || ''} 
-                    className="prose prose-sm max-w-none"
-                  />
-                </h4>
-                <p className="answer text-muted-foreground mt-1">{option?.text || response.answer}</p>
-              </div>
-            );
-          })}
-        </div>
       </div>
     </div>
   );

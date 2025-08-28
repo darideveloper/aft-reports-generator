@@ -280,16 +280,5 @@ export class SurveyPage {
     await expect(
       this.page.locator('h2:has-text("¡Formulario Completado!")')
     ).toBeVisible({ timeout: 3000 })
-
-    // Validate selected responses in page
-    for (const [question, answer] of Object.entries(this.selectedAnswers)) {
-      // Validate question title
-      const questionTitle = await this.page.locator(`h4 p:has-text("${question.trim().split('\n')[0]}")`)
-      await expect(questionTitle).toBeVisible({ timeout: 3000 })
-
-      // Validate answer
-      const answerElem = this.page.locator(`p.answer:has-text("${answer.trim()}")`)
-      await expect(answerElem.first()).toBeVisible({ timeout: 3000 })
-    }
   }
 }

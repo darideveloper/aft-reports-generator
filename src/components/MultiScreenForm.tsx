@@ -171,7 +171,6 @@ export const MultiScreenForm: React.FC = () => {
     return (
       <CompletionScreen
         responses={responses}
-        surveyQuestions={allQuestions}
       />
     );
   }
