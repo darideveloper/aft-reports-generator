@@ -1,0 +1,177 @@
+---
+alwaysApply: false
+description: Tailwind CSS styling rules for Astro and React projects with automatic installation
+globs: "**/*.tsx", "**/*.ts", "**/*.jsx", "**/*.js", "**/*.astro", "**/*.config.*", "**/*.css"
+---
+# Tailwind CSS Styling Rules
+
+## Overview
+This rule defines the proper way to organize and format Tailwind CSS classes in both Astro and React components, ensuring consistency and readability.
+
+## Astro Components
+Always use `class:list` directive with arrays for better readability and vertical organization:
+
+```astro
+<div
+  class:list={[
+    'grid',
+    'grid-cols-4 lg:grid-cols-1',
+    'gap-8',
+    'max-w-auto',
+    'place-items-center lg:place-items-start',
+    'lg:mx-auto',
+  ]}
+>
+```
+
+## React Components
+Always use `clsx` utility for className organization (install if required):
+
+```tsx
+<div
+  className={clsx(
+    'grid',
+    'grid-cols-4 lg:grid-cols-1',
+    'gap-8',
+    'max-w-auto',
+    'place-items-center lg:place-items-start',
+    'lg:mx-auto',
+  )}
+>
+```
+
+## Style Organization Rules
+
+### 1. Variants on Same Line
+Always group related styles and their variants on the same line:
+
+**❌ Wrong:**
+```tsx
+class={clsx(
+  'font-title',
+  'no-underline',
+  'border-2',
+  'border-blue',
+  'text-blue',
+  'hover:text-white',
+)}
+```
+
+**✅ Correct:**
+```tsx
+class={clsx(
+  'font-title',
+  'no-underline',
+  'border-2',
+  'border-blue',
+  'text-blue hover:text-white',
+)}
+```
+
+### 2. Responsive Variants
+Group responsive variants with their base styles:
+
+```tsx
+class={clsx(
+  'flex',
+  'flex-col md:flex-row',
+  'items-center',
+  'gap-4',
+  'mx-auto',
+  'w-full',
+)}
+```
+
+### 3. Complex Conditional Styles
+For complex conditional styles, use multiple conditions for readability:
+
+```tsx
+class={clsx(
+  'flex',
+  'flex-col',
+  'items-center',
+  'gap-4',
+  'mx-auto',
+  'w-full',
+  'md:flex-row md:items-center',
+  'gap-x-18',
+  index % 2 === 0 ? 'md:flex-row-reverse' : 'md:flex-row'
+)}
+```
+
+### 4. Multiple Variants
+Group multiple variants together:
+
+```tsx
+class={clsx(
+  'footer',
+  'gap-8 md:gap-0',
+  'justify-between',
+  'bg-blue',
+  'text-white',
+  'pt-12'
+)}
+```
+
+## Key Principles
+
+1. **One style per line**: Each line should contain one base style and its variants
+2. **Group related styles**: Keep responsive, hover, focus, and other variants with their base styles
+3. **Vertical organization**: Use arrays or clsx for vertical formatting
+4. **Readability**: Break complex styles into multiple conditions when needed
+5. **Consistency**: Use the same pattern across all components in the project
+
+## Installation Requirements
+
+For React projects, ensure `clsx` is installed:
+```bash
+npm install clsx
+# or
+yarn add clsx
+# or
+pnpm add clsx
+```
+
+## Examples by Component Type
+
+### Astro Component Example
+```astro
+<button
+  class:list={[
+    'px-4 py-2',
+    'bg-blue-500 hover:bg-blue-600',
+    'text-white'
+    'font-semibold',
+    'rounded-lg',
+    'shadow-md',
+    'transition-colors',
+    'duration-200',
+    'focus:outline-none',
+    'focus:ring-2',
+    'focus:ring-blue-300',
+  ]}
+>
+  Click me
+</button>
+```
+
+### React Component Example
+```tsx
+<button
+  className={clsx(
+    'px-4 py-2',
+    'bg-blue-500 hover:bg-blue-600',
+    'text-white',
+    'font-semibold',
+    'rounded-lg',
+    'shadow-md',
+    'transition-colors',
+    'duration-200',
+    'focus:outline-none',
+    'focus:ring-2',
+    'focus:ring-blue-300',
+  )}
+>
+  Click me
+</button>
+``` 

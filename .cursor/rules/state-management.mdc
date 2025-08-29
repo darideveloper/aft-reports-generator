@@ -1,0 +1,67 @@
+---
+globs: *.tsx,*.ts,*.jsx,*.js
+---
+# Frontend React & Astro Development Standards
+
+## Component Architecture
+- **Always use functional components** - Class components are legacy and should not be used
+- **Use React hooks** as the standard approach:
+  - `useState` for local component state
+  - `useEffect` for side effects and lifecycle management
+  - `useMemo` for expensive computations
+  - `useCallback` for memoizing functions
+  - `useRef` for DOM references and mutable values
+  - Custom hooks for reusable logic
+
+## Code Examples
+
+### ✅ Correct: Functional Component with Hooks
+```tsx
+import React, { useState, useEffect } from 'react';
+
+const MyComponent = ({ initialValue }) => {
+  const [value, setValue] = useState(initialValue);
+  
+  useEffect(() => {
+    // Side effect logic here
+  }, [value]);
+  
+  const memoizedValue = useMemo(() => {
+    return expensiveCalculation(value);
+  }, [value]);
+  
+  return <div>{memoizedValue}</div>;
+};
+```
+
+### ❌ Incorrect: Class Component
+```tsx
+class MyComponent extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = { value: props.initialValue };
+  }
+  
+  componentDidMount() {
+    // Legacy lifecycle method
+  }
+  
+  render() {
+    return <div>{this.state.value}</div>;
+  }
+}
+```
+
+## Best Practices
+- Prefer custom hooks over higher-order components (HOCs) for logic reuse
+- Use TypeScript interfaces for prop definitions
+- Implement proper dependency arrays in useEffect and useMemo
+- Keep components focused and single-responsibility
+- Extract complex logic into custom hooks
+
+## Migration Notes
+If you encounter class components in existing code:
+1. Convert to functional components
+2. Replace lifecycle methods with appropriate hooks
+3. Move instance methods to useCallback or custom hooks
+4. Update event handlers to use arrow functions or useCallback

@@ -1,0 +1,37 @@
+---
+alwaysApply: false
+description: astro project structure (components, pages, layouts, etc.) with better practices and optional react components
+globs:
+    - "**/*.astro"
+    - "**/*.tsx"
+    - "**/*.ts"
+    - "**/*.js"
+    - "**/*.jsx"
+    - "**/*.json"
+    - "**/*.md"
+---
+### ✅ Correct: React Component with Hooks
+```tsx
+import { useState, useEffect } from 'react';
+
+interface UserProfileProps {
+  userId: string;
+}
+
+const UserProfile = ({ userId }: UserProfileProps) => {
+  const [user, setUser] = useState(null);
+  
+  useEffect(() => {
+    fetchUser(userId).then(setUser);
+  }, [userId]);
+  
+  return user ? <div>{user.name}</div> : <div>Loading...</div>;
+};
+```
+
+### ❌ Incorrect: Class Component
+```tsx
+class UserProfile extends React.Component {
+  // Legacy approach - avoid this
+}
+```

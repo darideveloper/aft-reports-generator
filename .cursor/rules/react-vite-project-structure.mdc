@@ -1,0 +1,260 @@
+---
+alwaysApply: false
+description: React Vite project structure with better practices and optional react components
+globs:
+    - "**/*.tsx"
+    - "**/*.ts"
+    - "**/*.js"
+    - "**/*.jsx"
+---
+# React Vite Project Structure & Development Standards
+
+## Project Architecture
+Follow this organized structure for scalable React Vite projects:
+
+```
+my-app/
+├─ public/                   # static assets served directly
+│  ├─ index.html
+│  ├─ favicon.ico
+│  └─ assets/               # images, fonts, icons, static files
+├─ src/
+│  ├─ api/                  # API clients, fetch wrappers, GraphQL clients
+│  │  ├─ auth.api.ts
+│  │  └─ products.api.ts
+│  ├─ app/                  # app-level providers, routers, context
+│  │  ├─ App.tsx
+│  │  ├─ Router.tsx         # React Router routes
+│  │  ├─ Providers.tsx      # context providers (theme, auth, store)
+│  │  └─ index.tsx          # main entry
+│  ├─ assets/               # static assets used in components
+│  ├─ components/
+│  │  ├─ ui/                # atoms: buttons, inputs, icons
+│  │  ├─ blocks/            # molecules: cards, nav items, forms
+│  │  ├─ sections/          # organisms / page sections: Hero, Features, Footer
+│  │  └─ layout/            # header, footer, sidebar, navigation
+│  ├─ features/             # domain features
+│  │  ├─ auth/
+│  │  │  ├─ components/     # feature-specific UI
+│  │  │  ├─ hooks/          # feature-specific hooks
+│  │  │  ├─ services/       # feature business logic
+│  │  │  └─ pages/          # page-level components (login, register)
+│  │  └─ products/
+│  │     ├─ components/
+│  │     ├─ hooks/
+│  │     ├─ services/
+│  │     └─ pages/
+│  ├─ hooks/                # global hooks
+│  ├─ lib/                  # utils (helpers, validators, constants)
+│  ├─ store/                # global state (Zustand, Redux Toolkit, Jotai, etc.)
+│  ├─ styles/               # global CSS, Tailwind base, variables
+│  ├─ routes/               # optional: route config for React Router
+│  └─ types/                # TypeScript interfaces & types
+├─ tests/                   # integration, e2e, unit tests
+│  ├─ unit/
+│  ├─ integration/
+│  └─ e2e/
+├─ .eslintrc.js
+├─ .prettierrc
+├─ tsconfig.json
+├─ package.json
+└─ vite.config.ts           # or CRA config
+```
+
+## Component Standards
+
+### React Components
+- **Always use functional components** - Class components are legacy and should not be used
+- **Use React hooks** as the standard approach:
+  - `useState` for local component state
+  - `useEffect` for side effects and lifecycle management
+  - `useMemo` for expensive computations
+  - `useCallback` for memoizing functions
+  - `useRef` for DOM references and mutable values
+  - Custom hooks for reusable logic
+- Implement proper TypeScript interfaces for props
+- Use React.memo() sparingly, only when performance profiling shows it's needed
+
+## File Naming Conventions
+- **Components**: PascalCase (`UserProfile.tsx`, `ProductCard.tsx`)
+- **Pages**: PascalCase (`LoginPage.tsx`, `ProductDetailPage.tsx`)
+- **Hooks**: camelCase with `use` prefix (`useAuth.ts`, `useProducts.ts`)
+- **Services**: camelCase with `.service.ts` suffix (`auth.service.ts`)
+- **API**: camelCase with `.api.ts` suffix (`products.api.ts`)
+- **Utilities**: camelCase (`validation-helpers.ts`, `date-utils.ts`)
+- **Constants**: UPPER_SNAKE_CASE (`API_ENDPOINTS.ts`, `ROUTES.ts`)
+
+## Component Organization
+
+### Atomic Design Principles
+- **UI Components** (`src/components/ui/`): Reusable atomic components (Button, Input, Icon)
+- **Block Components** (`src/components/blocks/`): Molecular components (Card, NavItem, Form)
+- **Section Components** (`src/components/sections/`): Organism-level components (Hero, Features, Footer)
+- **Layout Components** (`src/components/layout/`): Page structure components (Header, Sidebar, Navigation)
+
+### Feature-Based Organization
+- **Feature Components** (`src/features/`): Domain-specific functionality
+  - Each feature has its own components, hooks, services, and pages
+  - Keep feature dependencies minimal and well-defined
+  - Use barrel exports (`index.ts`) for clean imports
+
+## State Management
+- Use local state (`useState`, `useReducer`) for component-specific state
+- Implement Zustand/Jotai for global state management
+- Use React Context sparingly, prefer prop drilling for simple cases
+- Keep global state minimal and focused on truly shared data
+- Implement proper state persistence when needed
+
+## API & Services
+- Centralize API calls in `src/api/` directory
+- Implement proper error handling and loading states
+- Use TypeScript interfaces for API requests and responses
+- Implement service layer for business logic in features
+- Use React Query/TanStack Query for server state management
+
+## Routing & Navigation
+- Use React Router v6+ for client-side routing
+- Organize routes in `src/app/Router.tsx`
+- Implement proper route guards for protected routes
+- Use lazy loading for route-based code splitting
+- Keep route definitions clean and maintainable
+
+## Styling
+- Use Tailwind CSS for utility-first styling
+- Define design tokens in `src/styles/`
+- Implement component-scoped styles when needed
+- Follow mobile-first responsive design
+- Use CSS-in-JS sparingly, prefer Tailwind utilities
+
+## Testing Strategy
+- **Unit Tests**: Test individual components and utilities
+- **Integration Tests**: Test component interactions and feature flows
+- **E2E Tests**: Test complete user journeys
+- Use React Testing Library for component testing
+- Implement proper test coverage and mocking strategies
+
+## Performance Best Practices
+- Use React.lazy() for code splitting
+- Implement proper memoization with useMemo and useCallback
+- Use React.memo() only when necessary
+- Optimize bundle size with Vite's build optimizations
+- Implement proper loading states and error boundaries
+
+## Code Examples
+
+### ✅ Correct: Functional Component with Hooks
+```tsx
+import React, { useState, useEffect, useMemo } from 'react';
+import { useAuth } from '@/hooks/useAuth';
+import { Button } from '@/components/ui/Button';
+
+interface UserProfileProps {
+  userId: string;
+  onUpdate?: (user: User) => void;
+}
+
+const UserProfile = ({ userId, onUpdate }: UserProfileProps) => {
+  const { user, updateUser } = useAuth();
+  const [isEditing, setIsEditing] = useState(false);
+  
+  const canEdit = useMemo(() => {
+    return user?.id === userId && user?.permissions?.canEdit;
+  }, [user, userId]);
+  
+  const handleSave = async (userData: Partial<User>) => {
+    try {
+      const updatedUser = await updateUser(userId, userData);
+      onUpdate?.(updatedUser);
+      setIsEditing(false);
+    } catch (error) {
+      console.error('Failed to update user:', error);
+    }
+  };
+  
+  return (
+    <div className="p-4 border rounded-lg">
+      {canEdit && (
+        <Button 
+          onClick={() => setIsEditing(!isEditing)}
+          variant={isEditing ? 'secondary' : 'primary'}
+        >
+          {isEditing ? 'Cancel' : 'Edit'}
+        </Button>
+      )}
+      {/* Component content */}
+    </div>
+  );
+};
+```
+
+### ✅ Correct: Custom Hook
+```tsx
+import { useState, useEffect, useCallback } from 'react';
+
+interface UseProductsOptions {
+  category?: string;
+  limit?: number;
+}
+
+export const useProducts = ({ category, limit = 10 }: UseProductsOptions = {}) => {
+  const [products, setProducts] = useState<Product[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  
+  const fetchProducts = useCallback(async () => {
+    setLoading(true);
+    setError(null);
+    
+    try {
+      const response = await fetch(`/api/products?category=${category}&limit=${limit}`);
+      const data = await response.json();
+      setProducts(data);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to fetch products');
+    } finally {
+      setLoading(false);
+    }
+  }, [category, limit]);
+  
+  useEffect(() => {
+    fetchProducts();
+  }, [fetchProducts]);
+  
+  return { products, loading, error, refetch: fetchProducts };
+};
+```
+
+### ❌ Incorrect: Class Component
+```tsx
+class UserProfile extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = { isEditing: false };
+  }
+  
+  componentDidMount() {
+    // Legacy lifecycle method
+  }
+  
+  render() {
+    return <div>Legacy approach - avoid this</div>;
+  }
+}
+```
+
+## Development Workflow
+- Use TypeScript for type safety
+- Implement proper ESLint and Prettier configuration
+- Use conventional commits for version control
+- Implement proper error boundaries and loading states
+- Follow React best practices and hooks rules
+- Use proper import aliases and path mapping
+
+
+## Development Workflow
+- Use TypeScript for type safety
+- Implement proper ESLint and Prettier configuration
+- Use conventional commits for version control
+- Implement proper error boundaries and loading states
+- Follow React best practices and hooks rules
+- Use proper import aliases and path mapping

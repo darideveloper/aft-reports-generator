@@ -1,0 +1,59 @@
+---
+alwaysApply: false
+description: React components props rules for Astro and React projects with automatic installation
+globs: "**/*.tsx", "**/*.ts", "**/*.jsx", "**/*.js", "**/*.astro", "**/*.config.*", "**/*.css"
+---
+
+# User Rules
+
+## React TypeScript Rules
+
+### Always be strict about types in React components
+
+- **Avoid using `React.FC`** - Use explicit function declarations with proper typing instead
+- **Use explicit interfaces** for component props with proper TypeScript types
+- **Always define prop types** even for optional props
+- **Use union types** for variant props (e.g., `'primary' | 'secondary'`)
+- **Include proper children typing** with `React.ReactNode`
+
+#### Example of good typing:
+
+```typescript
+interface ButtonProps {
+  variant?: 'primary' | 'secondary';
+  children: React.ReactNode;
+  onClick?: () => void;
+  disabled?: boolean;
+}
+
+const Button = ({ 
+  variant = 'primary', 
+  children, 
+  onClick, 
+  disabled = false 
+}: ButtonProps) => {
+  // Component implementation
+};
+```
+
+#### What to avoid:
+
+```typescript
+// ❌ Don't use React.FC
+const Button: React.FC<ButtonProps> = ({ variant, children }) => {
+  // Component implementation
+};
+
+// ❌ Don't use any or implicit types
+const Button = ({ variant, children }: any) => {
+  // Component implementation
+};
+```
+
+### Type Safety Guidelines
+
+- **Never use `any`** - Always define specific types
+- **Use strict TypeScript configuration** with `strict: true`
+- **Prefer interfaces over type aliases** for object shapes
+- **Use generics** when components need to work with different data types
+- **Always handle undefined/null cases** explicitly 

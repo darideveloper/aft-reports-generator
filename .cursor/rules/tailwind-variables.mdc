@@ -1,0 +1,557 @@
+---
+alwaysApply: false
+description: Tailwind CSS styling rules for Astro and React projects with automatic installation
+globs: "**/*.tsx", "**/*.ts", "**/*.jsx", "**/*.js", "**/*.astro", "**/*.config.*", "**/*.css"
+---
+
+# Tailwind CSS Styling Best Practices
+
+## Always Use Tailwind CSS for Styling
+**Never use inline styles or custom CSS when Tailwind utilities are available.**
+
+## CSS Variables & Tailwind Integration
+
+### CSS Variables Location
+CSS variables can be defined in multiple locations:
+
+1. **Global CSS file** (`src/styles/global.css`):
+```css
+@theme {
+  --font-title: 'Oswald Variable', 'sans-serif';
+  --font-sans: 'Roboto', 'sans-serif';
+  --color-blue: #4f6a9e;
+  --color-white: #ffffff;
+  --color-black: #000000;
+  --color-gold: #c7b66b;
+  --color-primary: #4f6a9e;
+  --color-secondary: #c7b66b;
+  --color-accent: #ff6b35;
+  --color-success: #28a745;
+  --color-warning: #ffc107;
+  --color-error: #dc3545;
+  --color-gray-50: #f9fafb;
+  --color-gray-100: #f3f4f6;
+  --color-gray-900: #111827;
+}
+```
+
+2. **Tailwind Config** (`tailwind.config.mjs`):
+```javascript
+/** @type {import('tailwindcss').Config} */
+export default {
+  theme: {
+    extend: {
+      colors: {
+        primary: '#4f6a9e',
+        secondary: '#c7b66b',
+        accent: '#ff6b35',
+        success: '#28a745',
+        warning: '#ffc107',
+        error: '#dc3545',
+        blue: '#4f6a9e',
+        gold: '#c7b66b',
+        gray: {
+          50: '#f9fafb',
+          100: '#f3f4f6',
+          900: '#111827',
+        }
+      },
+      fontFamily: {
+        title: 'Oswald Variable',
+        sans: 'Roboto',
+      }
+    }
+  }
+}
+```
+
+## Usage Patterns
+
+### ✅ Correct: Using Tailwind Classes with CSS Variables
+```tsx
+// React Component
+const Button = ({ variant = 'primary', children }: ButtonProps) => {
+  const baseClasses = clsx(
+    'px-4',
+    'py-2',
+    'rounded-lg',
+    'font-medium',
+    'transition-colors'
+  );
+  
+  const variantClasses = {
+    primary: clsx(
+      'bg-primary',
+      'text-white',
+      'hover:bg-primary/90'
+    ),
+    secondary: clsx(
+      'bg-secondary',
+      'text-black',
+      'hover:bg-secondary/90'
+    ),
+    outline: clsx(
+      'border-2',
+      'border-primary',
+      'text-primary',
+      'hover:bg-primary',
+      'hover:text-white'
+    )
+  };
+  
+  return (
+    <button className={clsx(baseClasses, variantClasses[variant])}>
+      {children}
+    </button>
+  );
+};
+
+// Card Component
+const Card = ({ title, children }: CardProps) => {
+  return (
+    <div className={clsx(
+      'bg-white',
+      'border',
+      'border-gray-200',
+      'rounded-lg',
+      'shadow-sm',
+      'p-6'
+    )}>
+      <h3 className={clsx(
+        'font-title',
+        'text-xl',
+        'text-gray-900',
+        'mb-4'
+      )}>{title}</h3>
+      <div className="text-gray-700">{children}</div>
+    </div>
+  );
+};
+```
+
+### ✅ Correct: Astro Component with Tailwind
+```astro
+---
+interface Props {
+  title: string;
+  description?: string;
+}
+
+const { title, description } = Astro.props;
+---
+
+<article class:list={[
+  'bg-white',
+  'border',
+  'border-gray-200',
+  'rounded-lg',
+  'shadow-sm',
+  'p-6'
+]}>
+  <h2 class:list={[
+    'font-title',
+    'text-2xl',
+    'text-gray-900',
+    'mb-3'
+  ]}>{title}</h2>
+  {description && <p class:list={[
+    'text-gray-700',
+    'text-base'
+  ]}>{description}</p>}
+</article>
+```
+
+### ✅ Correct: Responsive Design with Tailwind
+```tsx
+const Hero = () => {
+  return (
+    <section className={clsx(
+      'bg-gradient-to-br',
+      'from-primary',
+      'to-primary/80',
+      'text-white'
+    )}>
+      <div className={clsx(
+        'container',
+        'mx-auto',
+        'px-4',
+        'py-16 md:py-24'
+      )}>
+        <div className={clsx(
+          'max-w-4xl',
+          'mx-auto',
+          'text-center'
+        )}>
+          <h1 className={clsx(
+            'font-title',
+            'text-4xl md:text-6xl lg:text-7xl',
+            'font-bold',
+            'mb-6'
+          )}>
+            Welcome to Our Platform
+          </h1>
+          <p className={clsx(
+            'text-xl md:text-2xl',
+            'text-white/90',
+            'mb-8',
+            'max-w-2xl',
+            'mx-auto'
+          )}>
+            Build amazing experiences with our modern tools and frameworks
+          </p>
+          <div className={clsx(
+            'flex',
+            'flex-col sm:flex-row',
+            'gap-4',
+            'justify-center'
+          )}>
+            <button className={clsx(
+              'bg-white',
+              'text-primary',
+              'px-8',
+              'py-3',
+              'rounded-lg',
+              'font-semibold',
+              'hover:bg-gray-100',
+              'transition-colors'
+            )}>
+              Get Started
+            </button>
+            <button className={clsx(
+              'border-2',
+              'border-white',
+              'text-white',
+              'px-8',
+              'py-3',
+              'rounded-lg',
+              'font-semibold',
+              'hover:bg-white',
+              'hover:text-primary',
+              'transition-colors'
+            )}>
+              Learn More
+            </button>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+};
+```
+
+### ✅ Correct: Dark Mode Support
+```tsx
+const ThemeToggle = () => {
+  const [isDark, setIsDark] = useState(false);
+  
+  return (
+    <button 
+      onClick={() => setIsDark(!isDark)}
+      className={clsx(
+        'p-2',
+        'rounded-lg',
+        'bg-gray-200 dark:bg-gray-700',
+        'text-gray-800 dark:text-gray-200',
+        'hover:bg-gray-300 dark:hover:bg-gray-600',
+        'transition-colors'
+      )}
+    >
+      {isDark ? '🌞' : '🌙'}
+    </button>
+  );
+};
+```
+
+## ❌ Incorrect Patterns to Avoid
+
+### ❌ Wrong: Using CSS Variables Directly in Styles
+```tsx
+// Don't do this
+<div style={{ color: 'var(--color-blue)' }}>
+  <p>This is a blue text</p>
+</div>
+
+// Don't do this
+<div style={{ 
+  backgroundColor: 'var(--color-primary)',
+  color: 'var(--color-white)',
+  padding: 'var(--spacing-4)'
+}}>
+  Content
+</div>
+```
+
+### ❌ Wrong: Mixing Tailwind with Inline Styles
+```tsx
+// Don't do this
+<div className="p-4 rounded-lg" style={{ backgroundColor: 'var(--color-primary)' }}>
+  Content
+</div>
+
+// Do this instead
+<div className={clsx(
+  'p-4',
+  'rounded-lg',
+  'bg-primary'
+)}>
+  Content
+</div>
+```
+
+### ❌ Wrong: Custom CSS Classes When Tailwind Exists
+```css
+/* Don't create custom CSS for things Tailwind handles */
+.custom-button {
+  padding: 1rem 2rem;
+  border-radius: 0.5rem;
+  background-color: var(--color-primary);
+  color: white;
+}
+```
+
+```tsx
+// Don't use custom CSS classes
+<button className="custom-button">Click me</button>
+
+// Use Tailwind classes instead
+<button className={clsx(
+  'px-8',
+  'py-4',
+  'rounded-lg',
+  'bg-primary',
+  'text-white'
+)}>Click me</button>
+```
+
+## Component Styling Guidelines
+
+### 1. Use Tailwind Utility Classes
+- **Spacing**: `p-4`, `m-2`, `px-6`, `py-3`, `gap-4`
+- **Colors**: `bg-primary`, `text-gray-700`, `border-blue-500`
+- **Typography**: `font-title`, `text-2xl`, `font-semibold`
+- **Layout**: `flex`, `grid`, `container`, `mx-auto`
+- **Effects**: `shadow-lg`, `rounded-xl`, `transition-all`
+
+### 2. Responsive Design
+```tsx
+const ResponsiveGrid = () => {
+  return (
+    <div className={clsx(
+      'grid',
+      'grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4',
+      'gap-6'
+    )}>
+      {/* Grid items */}
+    </div>
+  );
+};
+```
+
+### 3. Hover and Focus States
+```tsx
+const InteractiveButton = () => {
+  return (
+    <button className={clsx(
+      'bg-primary',
+      'text-white',
+      'px-6',
+      'py-3',
+      'rounded-lg',
+      'font-semibold',
+      'hover:bg-primary/90',
+      'focus:ring-2',
+      'focus:ring-primary/50',
+      'focus:outline-none',
+      'active:scale-95',
+      'transition-all',
+      'duration-200'
+    )}>
+      Interactive Button
+    </button>
+  );
+};
+```
+
+### 4. Conditional Styling
+```tsx
+const StatusBadge = ({ status }: { status: 'success' | 'warning' | 'error' }) => {
+  const statusClasses = {
+    success: clsx(
+      'bg-success',
+      'text-white'
+    ),
+    warning: clsx(
+      'bg-warning',
+      'text-black'
+    ),
+    error: clsx(
+      'bg-error',
+      'text-white'
+    )
+  };
+  
+  return (
+    <span className={clsx(
+      'px-3',
+      'py-1',
+      'rounded-full',
+      'text-sm',
+      'font-medium',
+      statusClasses[status]
+    )}>
+      {status}
+    </span>
+  );
+};
+```
+
+## CSS Variables Detection & Usage
+
+### Always Check for Existing Variables
+1. **Look in `src/styles/global.css`** for `@theme` or `:root` declarations
+2. **Check `tailwind.config.mjs`** for extended theme values
+3. **Search for existing color/typography patterns** in components
+4. **Use existing variables** before creating new ones
+
+### Extend Only When Necessary
+```javascript
+// tailwind.config.mjs - Only extend if needed
+export default {
+  theme: {
+    extend: {
+      // Use existing CSS variables
+      colors: {
+        primary: 'var(--color-primary)',
+        secondary: 'var(--color-secondary)',
+        // Only add new colors if they don't exist
+        'brand-new': '#ff6b6b', // Only if this color isn't defined elsewhere
+      },
+      // Extend spacing if needed
+      spacing: {
+        '18': '4.5rem',
+        '88': '22rem',
+      }
+    }
+  }
+}
+```
+
+## File Organization
+
+### CSS Variables Structure
+```
+src/
+├─ styles/
+│  ├─ global.css          # CSS variables and base styles
+│  ├─ components.css      # Component-specific styles (if needed)
+│  └─ utilities.css      # Custom utilities (if needed)
+├─ tailwind.config.mjs    # Tailwind configuration
+└─ components/            # React/Astro components using Tailwind
+```
+
+### Import Order
+```css
+/* global.css */
+@import 'tailwindcss/base';
+@import 'tailwindcss/components';
+@import 'tailwindcss/utilities';
+
+@theme {
+  /* Your CSS variables here */
+}
+```
+
+## Best Practices Summary
+
+1. **Always use Tailwind classes** instead of inline styles
+2. **Detect existing CSS variables** before creating new ones
+3. **Use CSS variables through Tailwind** (e.g., `bg-primary`, `text-blue`)
+4. **Never use `var(--color-name)` directly** in components
+5. **Extend Tailwind config** only when necessary
+6. **Maintain consistent spacing** using Tailwind's scale
+7. **Use responsive prefixes** for mobile-first design
+8. **Implement dark mode** with `dark:` prefix
+9. **Use semantic color names** (primary, secondary, success, etc.)
+10. **Keep components focused** on functionality, not styling logic
+
+## Example Component with All Best Practices
+```tsx
+import React from 'react';
+import clsx from 'clsx';
+
+interface FeatureCardProps {
+  icon: React.ReactNode;
+  title: string;
+  description: string;
+  variant?: 'default' | 'highlighted';
+}
+
+const FeatureCard = ({ 
+  icon, 
+  title, 
+  description, 
+  variant = 'default' 
+}: FeatureCardProps) => {
+  const baseClasses = clsx(
+    'p-6',
+    'rounded-xl',
+    'border',
+    'transition-all',
+    'duration-300'
+  );
+  
+  const variantClasses = {
+    default: clsx(
+      'bg-white',
+      'border-gray-200',
+      'hover:border-primary/30',
+      'hover:shadow-lg'
+    ),
+    highlighted: clsx(
+      'bg-primary/5',
+      'border-primary/20',
+      'hover:border-primary/40',
+      'hover:shadow-xl'
+    )
+  };
+  
+  return (
+    <div className={clsx(baseClasses, variantClasses[variant])}>
+      <div className={clsx(
+        'flex',
+        'items-center',
+        'justify-center',
+        'w-12',
+        'h-12',
+        'bg-primary/10',
+        'rounded-lg',
+        'mb-4'
+      )}>
+        <div className={clsx(
+          'text-primary',
+          'text-xl'
+        )}>{icon}</div>
+      </div>
+      
+      <h3 className={clsx(
+        'font-title',
+        'text-xl',
+        'font-semibold',
+        'text-gray-900',
+        'mb-3'
+      )}>
+        {title}
+      </h3>
+      
+      <p className={clsx(
+        'text-gray-700',
+        'leading-relaxed'
+      )}>
+        {description}
+      </p>
+    </div>
+  );
+};
+
+export default FeatureCard;
+```

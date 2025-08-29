@@ -1,0 +1,528 @@
+---
+alwaysApply: false
+description: Zustand state management best practices for Astro and React projects with automatic installation
+globs: "**/*.tsx", "**/*.ts", "**/*.jsx", "**/*.js", "**/*.astro"
+---
+
+# Zustand State Management Best Practices
+
+## Installation & Setup
+**Always install Zustand if it's not already installed:**
+
+```bash
+npm install zustand
+# or
+yarn add zustand
+# or
+pnpm add zustand
+```
+
+## Store Structure & Organization
+
+### Store Location
+- **React Projects**: `src/store/` directory
+- **Astro Projects**: `src/store/` directory (when using React components)
+- Create separate store files for different domains: `authStore.ts`, `uiStore.ts`, `dataStore.ts`
+
+### Store File Structure
+```typescript
+// src/store/authStore.ts
+import { create } from 'zustand';
+import { devtools, persist } from 'zustand/middleware';
+
+interface User {
+  id: string;
+  email: string;
+  name: string;
+  isAuthenticated: boolean;
+}
+
+interface AuthState {
+  user: User | null;
+  isLoading: boolean;
+  error: string | null;
+}
+
+interface AuthActions {
+  login: (email: string, password: string) => Promise<void>;
+  logout: () => void;
+  setUser: (user: User) => void;
+  clearError: () => void;
+}
+
+type AuthStore = AuthState & AuthActions;
+
+export const useAuthStore = create<AuthStore>()(
+  devtools(
+    persist(
+      (set, get) => ({
+        // Initial state
+        user: null,
+        isLoading: false,
+        error: null,
+
+        // Actions
+        login: async (email: string, password: string) => {
+          set({ isLoading: true, error: null });
+          
+          try {
+            const response = await fetch('/api/auth/login', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ email, password }),
+            });
+            
+            if (!response.ok) {
+              throw new Error('Login failed');
+            }
+            
+            const user = await response.json();
+            set({ user, isLoading: false });
+          } catch (error) {
+            set({ 
+              error: error instanceof Error ? error.message : 'Login failed',
+              isLoading: false 
+            });
+          }
+        },
+
+        logout: () => {
+          set({ user: null, error: null });
+        },
+
+        setUser: (user: User) => {
+          set({ user });
+        },
+
+        clearError: () => {
+          set({ error: null });
+        },
+      }),
+      {
+        name: 'auth-storage', // unique name for localStorage key
+        partialize: (state) => ({ user: state.user }), // only persist user data
+      }
+    ),
+    {
+      name: 'auth-store', // name for Redux DevTools
+    }
+  )
+);
+```
+
+## Best Practices
+
+### 1. Store Composition
+- **Keep stores focused**: One store per domain/feature
+- **Use composition**: Combine stores when needed
+- **Avoid mega-stores**: Split large stores into smaller, focused ones
+
+### 2. State Updates
+- **Immutable updates**: Always return new state objects
+- **Use immer for complex updates**: `npm install immer`
+- **Batch updates**: Use multiple set calls for related state changes
+
+### 3. Middleware Usage
+- **devtools**: Always include for development debugging
+- **persist**: Use for state that should survive page reloads
+- **subscribeWithSelector**: Use when you need fine-grained subscriptions
+
+### 4. TypeScript Best Practices
+- **Separate interfaces**: Define state, actions, and store types separately
+- **Generic types**: Use generics for reusable store patterns
+- **Strict typing**: Avoid `any` types, use proper interfaces
+
+## Store Patterns
+
+### Simple Store
+```typescript
+// src/store/uiStore.ts
+import { create } from 'zustand';
+
+interface UIState {
+  sidebarOpen: boolean;
+  theme: 'light' | 'dark';
+  notifications: Notification[];
+}
+
+interface UIActions {
+  toggleSidebar: () => void;
+  setTheme: (theme: 'light' | 'dark') => void;
+  addNotification: (notification: Notification) => void;
+  removeNotification: (id: string) => void;
+}
+
+export const useUIStore = create<UIState & UIActions>((set) => ({
+  sidebarOpen: false,
+  theme: 'light',
+  notifications: [],
+
+  toggleSidebar: () => set((state) => ({ sidebarOpen: !state.sidebarOpen })),
+  
+  setTheme: (theme) => set({ theme }),
+  
+  addNotification: (notification) => 
+    set((state) => ({ 
+      notifications: [...state.notifications, notification] 
+    })),
+  
+  removeNotification: (id) => 
+    set((state) => ({ 
+      notifications: state.notifications.filter(n => n.id !== id) 
+    })),
+}));
+```
+
+### Async Store with Loading States
+```typescript
+// src/store/dataStore.ts
+import { create } from 'zustand';
+
+interface DataState<T> {
+  data: T[];
+  isLoading: boolean;
+  error: string | null;
+}
+
+interface DataActions<T> {
+  fetchData: () => Promise<void>;
+  addItem: (item: T) => void;
+  removeItem: (id: string) => void;
+  clearError: () => void;
+}
+
+export const createDataStore = <T extends { id: string }>(
+  fetchFunction: () => Promise<T[]>
+) => create<DataState<T> & DataActions<T>>((set, get) => ({
+  data: [],
+  isLoading: false,
+  error: null,
+
+  fetchData: async () => {
+    set({ isLoading: true, error: null });
+    
+    try {
+      const data = await fetchFunction();
+      set({ data, isLoading: false });
+    } catch (error) {
+      set({ 
+        error: error instanceof Error ? error.message : 'Failed to fetch data',
+        isLoading: false 
+      });
+    }
+  },
+
+  addItem: (item) => 
+    set((state) => ({ data: [...state.data, item] })),
+
+  removeItem: (id) => 
+    set((state) => ({ 
+      data: state.data.filter(item => item.id !== id) 
+    })),
+
+  clearError: () => set({ error: null }),
+}));
+
+// Usage
+export const useProductsStore = createDataStore<Product>(() => 
+  fetch('/api/products').then(res => res.json())
+);
+```
+
+## Usage in Components
+
+### React Components
+```tsx
+import React from 'react';
+import { useAuthStore } from '@/store/authStore';
+import { useUIStore } from '@/store/uiStore';
+
+const Header = () => {
+  const { user, logout } = useAuthStore();
+  const { sidebarOpen, toggleSidebar } = useUIStore();
+
+  return (
+    <header className="flex items-center justify-between p-4">
+      <button onClick={toggleSidebar}>
+        {sidebarOpen ? 'Close' : 'Open'} Menu
+      </button>
+      
+      <div className="flex items-center gap-4">
+        {user ? (
+          <>
+            <span>Welcome, {user.name}</span>
+            <button onClick={logout}>Logout</button>
+          </>
+        ) : (
+          <span>Please log in</span>
+        )}
+      </div>
+    </header>
+  );
+};
+```
+
+### Astro Components with React
+```astro
+---
+// Layout.astro
+---
+
+<html>
+  <head>
+    <!-- ... -->
+  </head>
+  <body>
+    <Header client:load />
+    <slot />
+  </body>
+</html>
+```
+
+```tsx
+// Header.tsx (React component used in Astro)
+import { useAuthStore } from '@/store/authStore';
+
+export const Header = () => {
+  const { user } = useAuthStore();
+  
+  return (
+    <header>
+      {user ? `Welcome, ${user.name}` : 'Please log in'}
+    </header>
+  );
+};
+```
+
+## Advanced Patterns
+
+### Store with Computed Values
+```typescript
+// src/store/cartStore.ts
+import { create } from 'zustand';
+import { subscribeWithSelector } from 'zustand/middleware';
+
+interface CartItem {
+  id: string;
+  name: string;
+  price: number;
+  quantity: number;
+}
+
+interface CartState {
+  items: CartItem[];
+  getTotalItems: () => number;
+  getTotalPrice: () => number;
+  addItem: (item: Omit<CartItem, 'quantity'>) => void;
+  removeItem: (id: string) => void;
+  updateQuantity: (id: string, quantity: number) => void;
+}
+
+export const useCartStore = create<CartState>()(
+  subscribeWithSelector((set, get) => ({
+    items: [],
+
+    getTotalItems: () => {
+      const { items } = get();
+      return items.reduce((total, item) => total + item.quantity, 0);
+    },
+
+    getTotalPrice: () => {
+      const { items } = get();
+      return items.reduce((total, item) => total + (item.price * item.quantity), 0);
+    },
+
+    addItem: (newItem) => {
+      const { items } = get();
+      const existingItem = items.find(item => item.id === newItem.id);
+      
+      if (existingItem) {
+        set({
+          items: items.map(item =>
+            item.id === newItem.id
+              ? { ...item, quantity: item.quantity + 1 }
+              : item
+          )
+        });
+      } else {
+        set({ items: [...items, { ...newItem, quantity: 1 }] });
+      }
+    },
+
+    removeItem: (id) => {
+      const { items } = get();
+      set({ items: items.filter(item => item.id !== id) });
+    },
+
+    updateQuantity: (id, quantity) => {
+      const { items } = get();
+      set({
+        items: items.map(item =>
+          item.id === id ? { ...item, quantity } : item
+        )
+      });
+    },
+  }))
+);
+```
+
+### Store with Side Effects
+```typescript
+// src/store/analyticsStore.ts
+import { create } from 'zustand';
+
+interface AnalyticsState {
+  events: AnalyticsEvent[];
+  trackEvent: (event: Omit<AnalyticsEvent, 'timestamp'>) => void;
+}
+
+export const useAnalyticsStore = create<AnalyticsState>((set, get) => ({
+  events: [],
+
+  trackEvent: (event) => {
+    const newEvent = { ...event, timestamp: Date.now() };
+    
+    // Update local state
+    set((state) => ({ 
+      events: [...state.events, newEvent] 
+    }));
+    
+    // Send to analytics service
+    fetch('/api/analytics', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(newEvent),
+    }).catch(console.error);
+  },
+}));
+```
+
+## Performance Optimization
+
+### Selective Subscriptions
+```tsx
+// Only re-render when specific state changes
+const user = useAuthStore((state) => state.user);
+const isLoading = useAuthStore((state) => state.isLoading);
+
+// Avoid unnecessary re-renders
+const { user, isLoading } = useAuthStore((state) => ({
+  user: state.user,
+  isLoading: state.isLoading,
+}));
+```
+
+### Shallow Comparison
+```tsx
+import { shallow } from 'zustand/shallow';
+
+// Use shallow comparison for objects
+const { user, settings } = useUserStore(
+  (state) => ({ user: state.user, settings: state.settings }),
+  shallow
+);
+```
+
+## Testing Stores
+
+### Unit Testing
+```typescript
+// __tests__/store/authStore.test.ts
+import { renderHook, act } from '@testing-library/react';
+import { useAuthStore } from '@/store/authStore';
+
+describe('Auth Store', () => {
+  beforeEach(() => {
+    useAuthStore.setState({
+      user: null,
+      isLoading: false,
+      error: null,
+    });
+  });
+
+  it('should handle login success', async () => {
+    const { result } = renderHook(() => useAuthStore());
+    
+    await act(async () => {
+      await result.current.login('test@example.com', 'password');
+    });
+    
+    expect(result.current.user).toBeTruthy();
+    expect(result.current.isLoading).toBe(false);
+    expect(result.current.error).toBeNull();
+  });
+});
+```
+
+## Migration from Other State Managers
+
+### From Redux
+- Replace `useSelector` with direct store access
+- Convert reducers to store actions
+- Use middleware for side effects
+
+### From Context
+- Replace `useContext` with store hooks
+- Move state logic to stores
+- Use stores for shared state, keep local state local
+
+## Common Anti-Patterns to Avoid
+
+### ❌ Don't: Mutate State Directly
+```typescript
+// Wrong
+const updateUser = (user: User) => {
+  const state = get();
+  state.user = user; // Direct mutation
+  set(state);
+};
+
+// Correct
+const updateUser = (user: User) => {
+  set({ user });
+};
+```
+
+### ❌ Don't: Create Stores in Components
+```typescript
+// Wrong
+const Component = () => {
+  const store = create(...); // Don't create stores in components
+};
+
+// Correct
+// Create stores at module level
+export const useStore = create(...);
+```
+
+### ❌ Don't: Over-Engineer Simple State
+```typescript
+// Wrong: Store for simple local state
+const useCounterStore = create((set) => ({
+  count: 0,
+  increment: () => set((state) => ({ count: state.count + 1 })),
+}));
+
+// Correct: Use local state for simple cases
+const Component = () => {
+  const [count, setCount] = useState(0);
+  return <button onClick={() => setCount(count + 1)}>{count}</button>;
+};
+```
+
+## Store File Naming Convention
+- **Feature stores**: `featureStore.ts` (e.g., `authStore.ts`, `cartStore.ts`)
+- **UI stores**: `uiStore.ts`, `themeStore.ts`
+- **Data stores**: `dataStore.ts`, `apiStore.ts`
+- **Index file**: `index.ts` for re-exports
+
+## Store Export Pattern
+```typescript
+// src/store/index.ts
+export { useAuthStore } from './authStore';
+export { useUIStore } from './uiStore';
+export { useCartStore } from './cartStore';
+export { useDataStore } from './dataStore';
+
+// Usage in components
+import { useAuthStore, useUIStore } from '@/store';
