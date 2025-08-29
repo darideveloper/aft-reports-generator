@@ -1,0 +1,772 @@
+---
+alwaysApply: false
+description: TypeScript strict typing rules for Astro and React projects with automatic installation
+globs: "**/*.tsx", "**/*.ts", "**/*.jsx", "**/*.js", "**/*.astro", "**/*.config.*", "**/*.css"
+---
+
+# TypeScript Strict Typing Rules
+
+## Overview
+**Always use TypeScript for React and Astro projects.** Never use plain JavaScript (.js/.jsx) files. This rule enforces strict TypeScript practices to ensure type safety, better developer experience, and reduced runtime errors.
+
+## Mandatory TypeScript Usage
+
+### ✅ Correct: Always Use TypeScript Extensions
+- **React Components**: `.tsx` files
+- **Utility Functions**: `.ts` files  
+- **Configuration**: `.ts` or `.mts` files
+- **Type Definitions**: `.d.ts` files
+- **Astro Components**: `.astro` files (with TypeScript in script tags)
+
+### ❌ Incorrect: Never Use JavaScript Extensions
+- **Never use**: `.js` or `.jsx` files
+- **Never use**: `any` types
+- **Never use**: implicit typing
+- **Never use**: untyped function parameters
+
+## TypeScript Configuration Requirements
+
+### Strict Mode Configuration
+```json
+// tsconfig.json
+{
+  "compilerOptions": {
+    "strict": true,
+    "noImplicitAny": true,
+    "noImplicitReturns": true,
+    "noImplicitThis": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "exactOptionalPropertyTypes": true,
+    "noUncheckedIndexedAccess": true,
+    "noImplicitOverride": true,
+    "allowUnusedLabels": false,
+    "allowUnreachableCode": false
+  }
+}
+```
+
+### Vite Configuration
+```typescript
+// vite.config.ts
+import { defineConfig } from 'vite';
+import react from '@vitejs/plugin-react';
+
+export default defineConfig({
+  plugins: [react()],
+  resolve: {
+    alias: {
+      '@': '/src',
+    },
+  },
+});
+```
+
+## Component Typing Standards
+
+### React Component Props Interface
+```tsx
+interface ButtonProps {
+  variant: 'primary' | 'secondary' | 'outline';
+  size: 'sm' | 'md' | 'lg';
+  children: React.ReactNode;
+  onClick?: () => void;
+  disabled?: boolean;
+  className?: string;
+}
+
+const Button = ({ 
+  variant, 
+  size, 
+  children, 
+  onClick, 
+  disabled = false,
+  className 
+}: ButtonProps) => {
+  // Component implementation
+};
+```
+
+### Astro Component Props Interface
+```astro
+---
+interface Props {
+  title: string;
+  description?: string;
+  variant: 'default' | 'highlighted';
+  tags: string[];
+}
+
+const { title, description, variant, tags } = Astro.props;
+---
+
+<div class:list={[
+  'card',
+  variant === 'highlighted' ? 'card--highlighted' : 'card--default'
+]}>
+  <h2>{title}</h2>
+  {description && <p>{description}</p>}
+  {tags.length > 0 && (
+    <div class="tags">
+      {tags.map(tag => <span class="tag">{tag}</span>)}
+    </div>
+  )}
+</div>
+```
+
+## Data Type Best Practices
+
+### 1. Primitive Types
+```typescript
+// ✅ Correct: Explicit primitive types
+const name: string = 'John Doe';
+const age: number = 30;
+const isActive: boolean = true;
+const tags: string[] = ['react', 'typescript'];
+const scores: number[] = [95, 87, 92];
+
+// ❌ Incorrect: Implicit typing
+const name = 'John Doe'; // TypeScript infers string, but be explicit
+const age = 30; // TypeScript infers number, but be explicit
+```
+
+### 2. Object Types
+```typescript
+// ✅ Correct: Explicit object interfaces
+interface User {
+  id: string;
+  email: string;
+  name: string;
+  age: number;
+  isActive: boolean;
+  preferences: {
+    theme: 'light' | 'dark';
+    language: 'en' | 'es' | 'fr';
+  };
+  createdAt: Date;
+}
+
+// ✅ Correct: Using the interface
+const user: User = {
+  id: 'user-123',
+  email: 'john@example.com',
+  name: 'John Doe',
+  age: 30,
+  isActive: true,
+  preferences: {
+    theme: 'dark',
+    language: 'en'
+  },
+  createdAt: new Date()
+};
+
+// ❌ Incorrect: Inline object types
+const user = {
+  id: 'user-123',
+  email: 'john@example.com',
+  // Missing required properties
+};
+```
+
+### 3. Union Types
+```typescript
+// ✅ Correct: Union types for variants
+type ButtonVariant = 'primary' | 'secondary' | 'outline' | 'ghost';
+type ButtonSize = 'sm' | 'md' | 'lg' | 'xl';
+type Status = 'idle' | 'loading' | 'success' | 'error';
+
+// ✅ Correct: Using union types
+const buttonVariant: ButtonVariant = 'primary';
+const buttonSize: ButtonSize = 'md';
+const status: Status = 'idle';
+
+// ❌ Incorrect: String literals without union types
+const buttonVariant = 'primary'; // Could be any string
+```
+
+### 4. Generic Types
+```typescript
+// ✅ Correct: Generic interfaces
+interface ApiResponse<T> {
+  data: T;
+  status: number;
+  message: string;
+  timestamp: Date;
+}
+
+interface PaginatedResponse<T> {
+  items: T[];
+  total: number;
+  page: number;
+  limit: number;
+  hasNext: boolean;
+  hasPrev: boolean;
+}
+
+// ✅ Correct: Using generic types
+const userResponse: ApiResponse<User> = {
+  data: user,
+  status: 200,
+  message: 'User found',
+  timestamp: new Date()
+};
+
+const usersResponse: PaginatedResponse<User> = {
+  items: [user1, user2, user3],
+  total: 3,
+  page: 1,
+  limit: 10,
+  hasNext: false,
+  hasPrev: false
+};
+```
+
+## Function Typing Standards
+
+### 1. Function Parameters and Return Types
+```typescript
+// ✅ Correct: Explicit parameter and return types
+function calculateTotal(items: CartItem[], taxRate: number): number {
+  const subtotal = items.reduce((sum, item) => sum + item.price * item.quantity, 0);
+  return subtotal * (1 + taxRate);
+}
+
+// ✅ Correct: Arrow function with types
+const formatCurrency = (amount: number, currency: 'USD' | 'EUR' | 'GBP'): string => {
+  return new Intl.NumberFormat('en-US', {
+    style: 'currency',
+    currency
+  }).format(amount);
+};
+
+// ✅ Correct: Async function with types
+const fetchUser = async (userId: string): Promise<User> => {
+  const response = await fetch(`/api/users/${userId}`);
+  if (!response.ok) {
+    throw new Error('Failed to fetch user');
+  }
+  return response.json();
+};
+
+// ❌ Incorrect: Missing types
+function calculateTotal(items, taxRate) { // Missing types
+  // Implementation
+}
+```
+
+### 2. Event Handler Types
+```typescript
+// ✅ Correct: Proper event handler types
+const handleClick = (event: React.MouseEvent<HTMLButtonElement>): void => {
+  event.preventDefault();
+  console.log('Button clicked');
+};
+
+const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>): void => {
+  const value = event.target.value;
+  setInputValue(value);
+};
+
+const handleFormSubmit = (event: React.FormEvent<HTMLFormElement>): void => {
+  event.preventDefault();
+  // Form submission logic
+};
+
+// ❌ Incorrect: Generic event types
+const handleClick = (event: any) => { // Never use 'any'
+  // Implementation
+};
+```
+
+## State Management Typing
+
+### 1. useState with Types
+```typescript
+// ✅ Correct: Typed useState
+const [user, setUser] = useState<User | null>(null);
+const [isLoading, setIsLoading] = useState<boolean>(false);
+const [error, setError] = useState<string | null>(null);
+const [tags, setTags] = useState<string[]>([]);
+
+// ✅ Correct: Complex state with interface
+interface FormState {
+  email: string;
+  password: string;
+  rememberMe: boolean;
+  errors: Record<string, string>;
+}
+
+const [formState, setFormState] = useState<FormState>({
+  email: '',
+  password: '',
+  rememberMe: false,
+  errors: {}
+});
+
+// ❌ Incorrect: Untyped useState
+const [user, setUser] = useState(null); // Missing type
+```
+
+### 2. useReducer with Types
+```typescript
+// ✅ Correct: Typed useReducer
+interface CounterState {
+  count: number;
+  step: number;
+}
+
+type CounterAction = 
+  | { type: 'increment' }
+  | { type: 'decrement' }
+  | { type: 'setStep'; payload: number }
+  | { type: 'reset' };
+
+const counterReducer = (state: CounterState, action: CounterAction): CounterState => {
+  switch (action.type) {
+    case 'increment':
+      return { ...state, count: state.count + state.step };
+    case 'decrement':
+      return { ...state, count: state.count - state.step };
+    case 'setStep':
+      return { ...state, step: action.payload };
+    case 'reset':
+      return { count: 0, step: 1 };
+    default:
+      return state;
+  }
+};
+
+const [state, dispatch] = useReducer(counterReducer, { count: 0, step: 1 });
+```
+
+## API and Data Fetching Types
+
+### 1. API Response Types
+```typescript
+// ✅ Correct: API response interfaces
+interface ApiError {
+  code: string;
+  message: string;
+  details?: Record<string, unknown>;
+}
+
+interface ApiResponse<T> {
+  success: boolean;
+  data?: T;
+  error?: ApiError;
+  meta?: {
+    timestamp: string;
+    version: string;
+  };
+}
+
+// ✅ Correct: Using typed API calls
+const fetchUsers = async (): Promise<ApiResponse<User[]>> => {
+  try {
+    const response = await fetch('/api/users');
+    const data = await response.json();
+    return { success: true, data };
+  } catch (error) {
+    return {
+      success: false,
+      error: {
+        code: 'FETCH_ERROR',
+        message: error instanceof Error ? error.message : 'Unknown error'
+      }
+    };
+  }
+};
+```
+
+### 2. Form Data Types
+```typescript
+// ✅ Correct: Form data interfaces
+interface LoginFormData {
+  email: string;
+  password: string;
+  rememberMe: boolean;
+}
+
+interface RegistrationFormData extends LoginFormData {
+  firstName: string;
+  lastName: string;
+  confirmPassword: string;
+  acceptTerms: boolean;
+}
+
+// ✅ Correct: Form validation types
+interface FormErrors {
+  [key: string]: string;
+}
+
+interface FormValidation {
+  isValid: boolean;
+  errors: FormErrors;
+}
+
+const validateLoginForm = (data: LoginFormData): FormValidation => {
+  const errors: FormErrors = {};
+  
+  if (!data.email) errors.email = 'Email is required';
+  if (!data.password) errors.password = 'Password is required';
+  
+  return {
+    isValid: Object.keys(errors).length === 0,
+    errors
+  };
+};
+```
+
+## Custom Hook Typing
+
+### 1. Hook Return Types
+```typescript
+// ✅ Correct: Typed custom hooks
+interface UseCounterReturn {
+  count: number;
+  increment: () => void;
+  decrement: () => void;
+  reset: () => void;
+  setCount: (value: number) => void;
+}
+
+const useCounter = (initialValue: number = 0): UseCounterReturn => {
+  const [count, setCount] = useState<number>(initialValue);
+  
+  const increment = useCallback((): void => {
+    setCount(prev => prev + 1);
+  }, []);
+  
+  const decrement = useCallback((): void => {
+    setCount(prev => prev - 1);
+  }, []);
+  
+  const reset = useCallback((): void => {
+    setCount(initialValue);
+  }, [initialValue]);
+  
+  return {
+    count,
+    increment,
+    decrement,
+    reset,
+    setCount
+  };
+};
+```
+
+### 2. Hook Parameter Types
+```typescript
+// ✅ Correct: Hook with typed parameters
+interface UseApiOptions<T> {
+  url: string;
+  method?: 'GET' | 'POST' | 'PUT' | 'DELETE';
+  body?: T;
+  headers?: Record<string, string>;
+  onSuccess?: (data: T) => void;
+  onError?: (error: Error) => void;
+}
+
+interface UseApiReturn<T> {
+  data: T | null;
+  loading: boolean;
+  error: Error | null;
+  execute: () => Promise<void>;
+}
+
+const useApi = <T>(options: UseApiOptions<T>): UseApiReturn<T> => {
+  const [data, setData] = useState<T | null>(null);
+  const [loading, setLoading] = useState<boolean>(false);
+  const [error, setError] = useState<Error | null>(null);
+  
+  const execute = useCallback(async (): Promise<void> => {
+    setLoading(true);
+    setError(null);
+    
+    try {
+      const response = await fetch(options.url, {
+        method: options.method || 'GET',
+        headers: options.headers,
+        body: options.body ? JSON.stringify(options.body) : undefined
+      });
+      
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      
+      const result = await response.json();
+      setData(result);
+      options.onSuccess?.(result);
+    } catch (err) {
+      const error = err instanceof Error ? err : new Error('Unknown error');
+      setError(error);
+      options.onError?.(error);
+    } finally {
+      setLoading(false);
+    }
+  }, [options]);
+  
+  return { data, loading, error, execute };
+};
+```
+
+## Type Guards and Type Assertions
+
+### 1. Type Guards
+```typescript
+// ✅ Correct: Type guards for runtime type checking
+const isUser = (obj: unknown): obj is User => {
+  return (
+    typeof obj === 'object' &&
+    obj !== null &&
+    'id' in obj &&
+    'email' in obj &&
+    'name' in obj
+  );
+};
+
+const isApiError = (obj: unknown): obj is ApiError => {
+  return (
+    typeof obj === 'object' &&
+    obj !== null &&
+    'code' in obj &&
+    'message' in obj
+  );
+};
+
+// ✅ Correct: Using type guards
+const handleApiResponse = (response: unknown): void => {
+  if (isUser(response)) {
+    console.log('User:', response.name);
+  } else if (isApiError(response)) {
+    console.error('API Error:', response.message);
+  } else {
+    console.error('Unknown response type');
+  }
+};
+```
+
+### 2. Type Assertions (Use Sparingly)
+```typescript
+// ✅ Correct: Type assertions when you're certain about the type
+const userData = JSON.parse(localStorage.getItem('user') || 'null') as User | null;
+
+// ✅ Correct: Type assertions with validation
+const assertIsUser = (obj: unknown): User => {
+  if (!isUser(obj)) {
+    throw new Error('Invalid user data');
+  }
+  return obj;
+};
+
+// ❌ Incorrect: Unsafe type assertions
+const user = response as User; // Unsafe without validation
+```
+
+## Error Handling Types
+
+### 1. Custom Error Classes
+```typescript
+// ✅ Correct: Custom error classes with types
+class ValidationError extends Error {
+  constructor(
+    message: string,
+    public field: string,
+    public code: string
+  ) {
+    super(message);
+    this.name = 'ValidationError';
+  }
+}
+
+class ApiError extends Error {
+  constructor(
+    message: string,
+    public statusCode: number,
+    public code: string
+  ) {
+    super(message);
+    this.name = 'ApiError';
+  }
+}
+
+// ✅ Correct: Using typed error handling
+const handleFormSubmission = async (data: FormData): Promise<void> => {
+  try {
+    const validation = validateForm(data);
+    if (!validation.isValid) {
+      throw new ValidationError(
+        'Form validation failed',
+        'form',
+        'VALIDATION_ERROR'
+      );
+    }
+    
+    const response = await submitForm(data);
+    if (!response.ok) {
+      throw new ApiError(
+        'Form submission failed',
+        response.status,
+        'SUBMISSION_ERROR'
+      );
+    }
+  } catch (error) {
+    if (error instanceof ValidationError) {
+      // Handle validation errors
+      console.error('Validation error:', error.field, error.message);
+    } else if (error instanceof ApiError) {
+      // Handle API errors
+      console.error('API error:', error.statusCode, error.message);
+    } else {
+      // Handle unknown errors
+      console.error('Unknown error:', error);
+    }
+  }
+};
+```
+
+## Best Practices Summary
+
+### 1. Always Use TypeScript
+- **Never create `.js` or `.jsx` files**
+- **Convert existing JavaScript files to TypeScript**
+- **Use `.ts` for utilities and `.tsx` for React components**
+
+### 2. Be Explicit About Types
+- **Define interfaces for all data structures**
+- **Use union types for variants and enums**
+- **Type all function parameters and return values**
+- **Type all state variables and props**
+
+### 3. Avoid Type Annotations
+- **Never use `any` type**
+- **Avoid `unknown` unless necessary for truly unknown data**
+- **Use proper type guards for runtime type checking**
+- **Prefer interfaces over type aliases for object shapes**
+
+### 4. Leverage TypeScript Features
+- **Use generics for reusable components and functions**
+- **Implement proper error handling with custom error types**
+- **Use utility types like `Partial<T>`, `Pick<T, K>`, `Omit<T, K>`**
+- **Implement proper null/undefined handling**
+
+### 5. Maintain Type Safety
+- **Keep types in sync with runtime behavior**
+- **Use strict TypeScript configuration**
+- **Implement proper validation for external data**
+- **Use type guards for runtime type checking**
+
+## Migration Checklist
+
+When converting JavaScript to TypeScript:
+1. ✅ Rename files from `.js/.jsx` to `.ts/.tsx`
+2. ✅ Add explicit type annotations for all variables
+3. ✅ Create interfaces for all data structures
+4. ✅ Type all function parameters and return values
+5. ✅ Add proper error handling types
+6. ✅ Implement type guards for external data
+7. ✅ Update build configuration for TypeScript
+8. ✅ Fix all TypeScript compilation errors
+9. ✅ Add strict TypeScript configuration
+10. ✅ Implement proper null/undefined handling
+
+## Example: Complete Typed Component
+
+```tsx
+import React, { useState, useCallback, useEffect } from 'react';
+
+interface User {
+  id: string;
+  name: string;
+  email: string;
+  role: 'admin' | 'user' | 'moderator';
+  isActive: boolean;
+  createdAt: Date;
+}
+
+interface UserCardProps {
+  user: User;
+  onEdit: (userId: string) => void;
+  onDelete: (userId: string) => void;
+  onToggleStatus: (userId: string, isActive: boolean) => void;
+}
+
+interface UserCardState {
+  isExpanded: boolean;
+  isConfirmingDelete: boolean;
+}
+
+const UserCard: React.FC<UserCardProps> = ({ 
+  user, 
+  onEdit, 
+  onDelete, 
+  onToggleStatus 
+}) => {
+  const [state, setState] = useState<UserCardState>({
+    isExpanded: false,
+    isConfirmingDelete: false
+  });
+
+  const handleEdit = useCallback((): void => {
+    onEdit(user.id);
+  }, [user.id, onEdit]);
+
+  const handleDelete = useCallback((): void => {
+    onDelete(user.id);
+    setState(prev => ({ ...prev, isConfirmingDelete: false }));
+  }, [user.id, onDelete]);
+
+  const handleToggleStatus = useCallback((): void => {
+    onToggleStatus(user.id, !user.isActive);
+  }, [user.id, user.isActive, onToggleStatus]);
+
+  const toggleExpanded = useCallback((): void => {
+    setState(prev => ({ ...prev, isExpanded: !prev.isExpanded }));
+  }, []);
+
+  const confirmDelete = useCallback((): void => {
+    setState(prev => ({ ...prev, isConfirmingDelete: true }));
+  }, []);
+
+  const cancelDelete = useCallback((): void => {
+    setState(prev => ({ ...prev, isConfirmingDelete: false }));
+  }, []);
+
+  return (
+    <div className="user-card">
+      <div className="user-card__header">
+        <h3>{user.name}</h3>
+        <span className={`role role--${user.role}`}>{user.role}</span>
+      </div>
+      
+      <div className="user-card__content">
+        <p>{user.email}</p>
+        <p>Created: {user.createdAt.toLocaleDateString()}</p>
+        <p>Status: {user.isActive ? 'Active' : 'Inactive'}</p>
+      </div>
+      
+      <div className="user-card__actions">
+        <button onClick={handleEdit}>Edit</button>
+        <button onClick={handleToggleStatus}>
+          {user.isActive ? 'Deactivate' : 'Activate'}
+        </button>
+        <button onClick={confirmDelete} className="btn--danger">
+          Delete
+        </button>
+      </div>
+      
+      {state.isConfirmingDelete && (
+        <div className="delete-confirmation">
+          <p>Are you sure you want to delete {user.name}?</p>
+          <button onClick={handleDelete} className="btn--danger">
+            Confirm Delete
+          </button>
+          <button onClick={cancelDelete}>Cancel</button>
+        </div>
+      )}
+    </div>
+  );
+};
+
+export default UserCard;
+```
