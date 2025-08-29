@@ -1,0 +1,365 @@
+---
+alwaysApply: false
+description: API calls standards and best practices for Astro and React projects with automatic installation
+globs: "**/*.tsx", "**/*.ts", "**/*.jsx", "**/*.js", "**/*.astro", "**/*.config.*", "**/*.css"
+---
+
+# API Calls Standards & Best Practices
+
+## Environment Variables Management
+
+### 1. Environment File Structure
+Create separate environment files for different environments:
+
+```bash
+# .env.local (gitignored - local development)
+VITE_API_ENDPOINT=http://localhost:8000/api
+VITE_API_KEY=your_local_api_key
+VITE_SURVEY_ID=123
+
+# .env.example (committed - template)
+VITE_API_ENDPOINT=https://api.example.com
+VITE_API_KEY=your_api_key_here
+VITE_SURVEY_ID=your_survey_id
+
+# .env.production (production builds)
+VITE_API_ENDPOINT=https://api.production.com
+VITE_API_KEY=production_api_key
+VITE_SURVEY_ID=prod_survey_id
+```
+
+### 2. VITE_ Prefix Requirements
+- **React Vite (No SSR)**: All environment variables must use `VITE_` prefix
+- **Astro with SSR**: Only expose necessary variables with `VITE_` prefix
+- **Server-side variables**: Use without `VITE_` prefix for server-only code
+
+```typescript
+// ✅ Correct: Frontend accessible variables
+const apiEndpoint = import.meta.env.VITE_API_ENDPOINT;
+const apiKey = import.meta.env.VITE_API_KEY;
+
+// ❌ Wrong: Server-only variables (won't work in frontend)
+const secretKey = import.meta.env.SECRET_KEY; // Not accessible
+```
+
+## API Function Structure
+
+### 1. Single Responsibility Functions
+Each API function should handle one specific endpoint:
+
+```typescript
+// ✅ Correct: Single responsibility
+export const validateEmail = async (email: string): Promise<boolean> => {
+  // Implementation
+};
+
+export const createParticipant = async (participantData: ParticipantData): Promise<Participant> => {
+  // Implementation
+};
+
+// ❌ Wrong: Multiple responsibilities
+export const handleParticipantOperations = async (operation: string, data: any) => {
+  // Too many responsibilities
+};
+```
+
+### 2. Dynamic Data as Parameters
+Always pass dynamic data as function parameters:
+
+```typescript
+// ✅ Correct: Dynamic data as parameters
+export const validateEmail = async (email: string): Promise<boolean> => {
+  const apiEndpoint = import.meta.env.VITE_API_ENDPOINT;
+  const apiKey = import.meta.env.VITE_API_KEY;
+  const surveyId = import.meta.env.VITE_SURVEY_ID;
+  
+  // Use parameters instead of hardcoded values
+  const response = await fetch(`${apiEndpoint}/participant/has-answer/`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Token ${apiKey}`,
+    },
+    body: JSON.stringify({
+      email: email, // Use parameter
+      survey_id: surveyId,
+    }),
+  });
+  
+  // Rest of implementation
+};
+
+// ❌ Wrong: Hardcoded values
+export const validateEmail = async (): Promise<boolean> => {
+  // Hardcoded email - inflexible
+  const response = await fetch('/api/participant/has-answer/', {
+    body: JSON.stringify({ email: 'hardcoded@email.com' }),
+  });
+};
+```
+
+## Fetch API Standards
+
+### 1. Always Use Async/Await
+```typescript
+// ✅ Correct: Async/await pattern
+export const fetchData = async (id: string): Promise<Data> => {
+  try {
+    const response = await fetch(`/api/data/${id}`);
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    return await response.json();
+  } catch (error) {
+    console.error('Error fetching data:', error);
+    throw error;
+  }
+};
+
+// ❌ Wrong: Promise chains
+export const fetchData = (id: string): Promise<Data> => {
+  return fetch(`/api/data/${id}`)
+    .then(response => response.json())
+    .catch(error => console.error(error));
+};
+```
+
+### 2. Proper Error Handling
+```typescript
+export const apiCall = async (endpoint: string, options: RequestInit = {}): Promise<any> => {
+  try {
+    const response = await fetch(endpoint, {
+      headers: {
+        'Content-Type': 'application/json',
+        ...options.headers,
+      },
+      ...options,
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(
+        `API request failed: ${response.status} ${response.statusText} - ${errorData.message || 'Unknown error'}`
+      );
+    }
+
+    return await response.json();
+  } catch (error) {
+    console.error('API call failed:', error);
+    throw error;
+  }
+};
+```
+
+## API File Organization
+
+### 1. File Structure
+```
+src/lib/api/
+├─ index.ts              # Re-exports all API functions
+├─ auth.api.ts           # Authentication related API calls
+├─ participants.api.ts   # Participant related API calls
+├─ surveys.api.ts        # Survey related API calls
+├─ types.ts              # API types and interfaces
+└─ utils.ts              # Shared API utilities
+```
+
+### 2. API Function Examples
+
+#### Authentication API
+```typescript
+// src/lib/api/auth.api.ts
+interface LoginCredentials {
+  email: string;
+  password: string;
+}
+
+interface LoginResponse {
+  token: string;
+  user: User;
+}
+
+export const loginUser = async (credentials: LoginCredentials): Promise<LoginResponse> => {
+  const apiEndpoint = import.meta.env.VITE_API_ENDPOINT;
+  
+  const response = await fetch(`${apiEndpoint}/auth/login/`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(credentials),
+  });
+
+  if (!response.ok) {
+    throw new Error(`Login failed: ${response.status}`);
+  }
+
+  return await response.json();
+};
+```
+
+#### Participants API
+```typescript
+// src/lib/api/participants.api.ts
+interface ParticipantData {
+  email: string;
+  name: string;
+  survey_id: string;
+}
+
+export const validateEmail = async (email: string): Promise<boolean> => {
+  const apiEndpoint = import.meta.env.VITE_API_ENDPOINT;
+  const apiKey = import.meta.env.VITE_API_KEY;
+  const surveyId = import.meta.env.VITE_SURVEY_ID;
+  
+  if (!apiKey) {
+    throw new Error('API key not found in environment variables');
+  }
+
+  const response = await fetch(`${apiEndpoint}/participant/has-answer/`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Token ${apiKey}`,
+    },
+    body: JSON.stringify({
+      email: email,
+      survey_id: surveyId,
+    }),
+  });
+
+  if (!response.ok) {
+    throw new Error(`API request failed: ${response.status} ${response.statusText}`);
+  }
+
+  const result = await response.json();
+  return !result.data.has_answer;
+};
+
+export const createParticipant = async (participantData: ParticipantData): Promise<Participant> => {
+  const apiEndpoint = import.meta.env.VITE_API_ENDPOINT;
+  const apiKey = import.meta.env.VITE_API_KEY;
+  
+  const response = await fetch(`${apiEndpoint}/participant/create/`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Token ${apiKey}`,
+    },
+    body: JSON.stringify(participantData),
+  });
+
+  if (!response.ok) {
+    throw new Error(`Failed to create participant: ${response.status}`);
+  }
+
+  return await response.json();
+};
+```
+
+### 3. Shared API Utilities
+```typescript
+// src/lib/api/utils.ts
+export const getApiHeaders = (includeAuth: boolean = true): HeadersInit => {
+  const headers: HeadersInit = {
+    'Content-Type': 'application/json',
+  };
+
+  if (includeAuth) {
+    const apiKey = import.meta.env.VITE_API_KEY;
+    if (apiKey) {
+      headers['Authorization'] = `Token ${apiKey}`;
+    }
+  }
+
+  return headers;
+};
+
+export const handleApiError = (response: Response, context: string): never => {
+  const errorMessage = `API ${context} failed: ${response.status} ${response.statusText}`;
+  console.error(errorMessage);
+  throw new Error(errorMessage);
+};
+
+export const validateEnvironmentVariables = (): void => {
+  const requiredVars = ['VITE_API_ENDPOINT', 'VITE_API_KEY'];
+  const missingVars = requiredVars.filter(varName => !import.meta.env[varName]);
+  
+  if (missingVars.length > 0) {
+    throw new Error(`Missing required environment variables: ${missingVars.join(', ')}`);
+  }
+};
+```
+
+## Environment Variables Best Practices
+
+### 1. Validation on App Start
+```typescript
+// src/lib/api/config.ts
+export const validateApiConfig = (): void => {
+  const requiredVars = {
+    VITE_API_ENDPOINT: import.meta.env.VITE_API_ENDPOINT,
+    VITE_API_KEY: import.meta.env.VITE_API_KEY,
+    VITE_SURVEY_ID: import.meta.env.VITE_SURVEY_ID,
+  };
+
+  const missingVars = Object.entries(requiredVars)
+    .filter(([_, value]) => !value)
+    .map(([key]) => key);
+
+  if (missingVars.length > 0) {
+    console.error('Missing required environment variables:', missingVars);
+    throw new Error(`Missing required environment variables: ${missingVars.join(', ')}`);
+  }
+};
+
+// Call this in your main.tsx or App.tsx
+validateApiConfig();
+```
+
+### 2. Type-Safe Environment Variables
+```typescript
+// src/lib/api/env.ts
+interface EnvVariables {
+  VITE_API_ENDPOINT: string;
+  VITE_API_KEY: string;
+  VITE_SURVEY_ID: string;
+}
+
+export const env: EnvVariables = {
+  VITE_API_ENDPOINT: import.meta.env.VITE_API_ENDPOINT!,
+  VITE_API_KEY: import.meta.env.VITE_API_KEY!,
+  VITE_SURVEY_ID: import.meta.env.VITE_SURVEY_ID!,
+};
+
+// Usage in API functions
+export const validateEmail = async (email: string): Promise<boolean> => {
+  const response = await fetch(`${env.VITE_API_ENDPOINT}/participant/has-answer/`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Token ${env.VITE_API_KEY}`,
+    },
+    body: JSON.stringify({
+      email: email,
+      survey_id: env.VITE_SURVEY_ID,
+    }),
+  });
+  
+  // Rest of implementation
+};
+```
+
+## Summary of Key Points
+
+1. **Environment Variables**: Use `VITE_` prefix for frontend-accessible variables
+2. **Dynamic Parameters**: Always pass dynamic data as function parameters
+3. **Async/Await**: Use async/await pattern with fetch API
+4. **Error Handling**: Implement proper error handling and logging
+5. **Single Responsibility**: Each API function should handle one specific endpoint
+6. **Type Safety**: Use TypeScript interfaces for API requests and responses
+7. **Validation**: Validate environment variables on app startup
+8. **Organization**: Organize API functions by domain in separate files
+9. **Testing**: Mock environment variables and fetch calls in tests
+10. **Security**: Never expose sensitive environment variables to the frontend
+---
