@@ -23,6 +23,8 @@ export const GeneralDataScreen: React.FC<GeneralDataScreenProps> = ({
   const [birthRange, setBirthRange] = useState(emailResponse?.birthRange || '')
   const [position, setPosition] = useState(emailResponse?.position || '')
   const [error, setError] = useState('')
+  const [nameError, setNameError] = useState('')
+  const [emailError, setEmailError] = useState('')
   const [isValidating, setIsValidating] = useState(false)
   const [isValid, setIsValid] = useState(false)
 
@@ -49,6 +51,7 @@ export const GeneralDataScreen: React.FC<GeneralDataScreenProps> = ({
 
   const handleValidate = async () => {
     if (!email.trim()) {
+      setEmailError('El email es obligatorio')
       setError('El email es obligatorio')
       return
     }
@@ -56,21 +59,25 @@ export const GeneralDataScreen: React.FC<GeneralDataScreenProps> = ({
     // Basic email validation
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
     if (!emailRegex.test(email)) {
+      setEmailError('Por favor, ingresa un email válido')
       setError('Por favor, ingresa un email válido')
       return
     }
 
     setIsValidating(true)
     setError('')
+    setEmailError('')
 
     try {
       const emailIsValid = await validateEmail(email)
       setIsValid(emailIsValid)
 
       if (!emailIsValid) {
+        setEmailError('El email no es válido')
         setError('El email no es válido')
       }
     } catch (error) {
+      setEmailError('Error al validar el email. Inténtalo de nuevo.')
       setError('Error al validar el email. Inténtalo de nuevo.')
       setIsValid(false)
     } finally {
@@ -80,16 +87,21 @@ export const GeneralDataScreen: React.FC<GeneralDataScreenProps> = ({
 
   const handleNext = () => {
     if (!name.trim()) {
+      setNameError('El nombre es obligatorio')
       setError('El nombre es obligatorio')
       return
+    } else {
+      setNameError('')
     }
 
     if (!email.trim()) {
+      setEmailError('El email es obligatorio')
       setError('El email es obligatorio')
       return
     }
 
     if (!isValid) {
+      setEmailError('Debes validar el email antes de continuar')
       setError('Debes validar el email antes de continuar')
       return
     }
@@ -110,6 +122,8 @@ export const GeneralDataScreen: React.FC<GeneralDataScreenProps> = ({
     }
 
     setError('')
+    setNameError('')
+    setEmailError('')
     setEmail(email, name, gender, birthRange, position)
     onNext()
   }
@@ -118,6 +132,9 @@ export const GeneralDataScreen: React.FC<GeneralDataScreenProps> = ({
     setLocalEmail(value)
     if (error) {
       setError('')
+    }
+    if (emailError) {
+      setEmailError('')
     }
     // Reset validation state when user changes input
     setIsValid(false)
@@ -175,10 +192,11 @@ export const GeneralDataScreen: React.FC<GeneralDataScreenProps> = ({
               onChange={(e) => {
                 setName(e.target.value)
                 setGeneralData('name', e.target.value)
+                if (nameError) setNameError('')
                 if (error) setError('')
               }}
               className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-ring focus:border-transparent transition-colors bg-background text-foreground placeholder:text-muted-foreground ${
-                error ? 'border-destructive' : 'border-input'
+                nameError ? 'border-destructive' : 'border-input'
               }`}
               placeholder='Ingresa tu nombre'
               required
@@ -199,7 +217,7 @@ export const GeneralDataScreen: React.FC<GeneralDataScreenProps> = ({
                 value={email}
                 onChange={(e) => handleInputChange(e.target.value)}
                 className={`flex-1 px-4 py-3 border rounded-lg focus:ring-2 focus:ring-ring focus:border-transparent transition-colors bg-background text-foreground placeholder:text-muted-foreground ${
-                  error ? 'border-destructive' : 'border-input'
+                  emailError ? 'border-destructive' : 'border-input'
                 }`}
                 placeholder='Ingresa tu email'
               />
