@@ -45,7 +45,7 @@ export const CompletionScreen: React.FC<CompletionScreenProps> = ({
         gender: emailResponse.gender || '',
         birth_range: emailResponse.birthRange || '',
         position: emailResponse.position || '',
-        name: emailResponse.email.split('@')[0], // Use email prefix as name
+        name: emailResponse.name || '',
         email: emailResponse.email
       };
       

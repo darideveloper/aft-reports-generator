@@ -51,11 +51,14 @@ export class SurveyPage {
     }
   }
 
-  async generalDataScreen(email: string, expectError: boolean = false) {
+  async generalDataScreen(email: string, expectError: boolean = false, name: string = 'test user',) {
     // wait page loads
     await expect(
       this.page.locator('h2:has-text("Datos Generales")')
     ).toBeVisible({ timeout: 3000 })
+
+    // Fill name
+    await this.page.fill('input[id="name"]', name)
 
     // Select gender
     await this.page.selectOption('select[id="gender"]', 'Masculino')

@@ -48,6 +48,7 @@ export interface GuestCodeResponse {
 
 export interface EmailResponse {
   email: string;
+  name: string;
   gender: string;
   birthRange: string;
   position: string;
@@ -68,8 +69,8 @@ interface FormStore {
   addResponse: (response: FormResponse) => void;
   updateResponse: (questionId: number, optionId: number, answer: string) => void;
   setGuestCode: (guestCode: string) => void;
-  setEmail: (email: string, gender?: string, birthRange?: string, position?: string) => void;
-  setGeneralData: (field: 'gender' | 'birthRange' | 'position', value: string) => void;
+  setEmail: (email: string, name?: string, gender?: string, birthRange?: string, position?: string) => void;
+  setGeneralData: (field: 'name' | 'gender' | 'birthRange' | 'position', value: string) => void;
   fetchSurveyData: (surveyId: number) => Promise<void>;
   nextScreen: () => void;
   previousScreen: () => void;
@@ -138,11 +139,11 @@ export const useFormStore = create<FormStore>((set, get) => ({
     set({ guestCodeResponse: { guestCode } });
   },
 
-  setEmail: (email: string, gender: string = '', birthRange: string = '', position: string = '') => {
-    set({ emailResponse: { email, gender, birthRange, position } });
+  setEmail: (email: string, name: string = '', gender: string = '', birthRange: string = '', position: string = '') => {
+    set({ emailResponse: { email, name, gender, birthRange, position } });
   },
 
-  setGeneralData: (field: 'gender' | 'birthRange' | 'position', value: string) => {
+  setGeneralData: (field: 'name' | 'gender' | 'birthRange' | 'position', value: string) => {
     const { emailResponse } = get();
     if (emailResponse) {
       set({ 

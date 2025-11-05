@@ -18,6 +18,7 @@ export const GeneralDataScreen: React.FC<GeneralDataScreenProps> = ({
 }) => {
   const { emailResponse, setEmail, setGeneralData } = useFormStore()
   const [email, setLocalEmail] = useState(emailResponse?.email || '')
+  const [name, setName] = useState(emailResponse?.name || '')
   const [gender, setGender] = useState(emailResponse?.gender || '')
   const [birthRange, setBirthRange] = useState(emailResponse?.birthRange || '')
   const [position, setPosition] = useState(emailResponse?.position || '')
@@ -78,6 +79,11 @@ export const GeneralDataScreen: React.FC<GeneralDataScreenProps> = ({
   }
 
   const handleNext = () => {
+    if (!name.trim()) {
+      setError('El nombre es obligatorio')
+      return
+    }
+
     if (!email.trim()) {
       setError('El email es obligatorio')
       return
@@ -104,7 +110,7 @@ export const GeneralDataScreen: React.FC<GeneralDataScreenProps> = ({
     }
 
     setError('')
-    setEmail(email, gender, birthRange, position)
+    setEmail(email, name, gender, birthRange, position)
     onNext()
   }
 
@@ -155,6 +161,30 @@ export const GeneralDataScreen: React.FC<GeneralDataScreenProps> = ({
         </div>
 
         <div className='text-left space-y-4'>
+          <div>
+            <label
+              htmlFor='name'
+              className='block text-sm font-medium text-foreground mb-2'
+            >
+              Nombre <span className='text-destructive'>*</span>
+            </label>
+            <input
+              id='name'
+              type='text'
+              value={name}
+              onChange={(e) => {
+                setName(e.target.value)
+                setGeneralData('name', e.target.value)
+                if (error) setError('')
+              }}
+              className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-ring focus:border-transparent transition-colors bg-background text-foreground placeholder:text-muted-foreground ${
+                error ? 'border-destructive' : 'border-input'
+              }`}
+              placeholder='Ingresa tu nombre'
+              required
+            />
+          </div>
+
           <div>
             <label
               htmlFor='email'
