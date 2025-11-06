@@ -123,7 +123,8 @@ export class SurveyPage {
   async questionScreen(
     title: string,
     lastScreen: boolean = false,
-    disableNext: boolean = false
+    disableNext: boolean = false,
+    answers: string[] = []
   ) {
     // Validate title in screen
     await this.#questionScreenValidateTitle(title)
@@ -131,20 +132,33 @@ export class SurveyPage {
     // Loop questions
     const questionSelector = `.questions .question-container`
     const questions = await this.page.$$(questionSelector)
-    for (const question of questions) {
+    for (let questionIndex = 0; questionIndex < questions.length; questionIndex++) {
       // Select random answer and save value
+      const question = questions[questionIndex]
       const questionTitleText = await this.#questionValidateH3(question)
 
-      // Select random answer and save value
+      // Select correct answers
+      if (answers.length > 0) {
+        const answerValue = answers[questionIndex]
+        const questionAnswers = await questions[questionIndex].$$('label input')
+        for (const answer of questionAnswers) {
+          if (await answer.getAttribute('value') === answerValue) {
+            await answer.click()
+            break
+          }
+        }
+        this.selectedAnswers[questionTitleText || ''] = answerValue
+        continue
+      } 
+
+      // Select random answer if no answers are provided
       const optionsSelector = 'label input'
       const options = await question.$$(optionsSelector)
 
-      // Get random option validating unique responses
       const randomOption = options[Math.floor(Math.random() * options.length)]
       const randomOptionValue =
         (await randomOption?.getAttribute('value')) || ''
 
-      // Click option
       await randomOption?.click()
       this.selectedAnswers[questionTitleText || ''] = randomOptionValue
     }
@@ -220,6 +234,32 @@ export class SurveyPage {
     await this.page.fill('input[name="username"]', dashboardUser)
     await this.page.fill('input[name="password"]', dashboardPassword)
     await this.page.click('button[type="submit"]')
+  }
+
+  async dashboardSearchTotalQuestionGroup(
+    email: string,
+    questionGroupIndex: number,
+    login: boolean = true
+  ): Promise<number> {
+    // Login and search user
+    if (login) {
+      await this.#loginDashboard()
+    }
+
+    // Open participants page
+    let searchUrl = `/admin/survey/reportquestiongrouptotal/`
+    searchUrl += `?question_group__id__exact=${questionGroupIndex}&q=${email}`
+    await this.page.goto(dashboardUrl + searchUrl)
+
+    // Validage page h1 "Participantes"
+    await expect(
+      this.page.locator('h1:has-text("Totales de Grupos de Preguntas")')
+    ).toBeVisible()
+
+    // Get users found but not fields it no data
+    const totalQuestionGroup = this.page.locator('.field-total')
+    const totalQuestionGroupText = await totalQuestionGroup.textContent()
+    return parseFloat(totalQuestionGroupText || '0')
   }
 
   async dashboardSearchUser(
