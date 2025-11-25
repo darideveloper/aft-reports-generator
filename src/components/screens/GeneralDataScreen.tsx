@@ -43,8 +43,23 @@ export const GeneralDataScreen: React.FC<GeneralDataScreenProps> = ({
   ]
 
   const POSITION_CHOICES = [
+    { value: 'analista', label: 'Analista' },
+    { value: 'asesor', label: 'Asesor' },
+    { value: 'auxiliar', label: 'Auxiliar' },
+    { value: 'contralor', label: 'Contralor' },
+    { value: 'coordinador', label: 'Coordinador' },
     { value: 'director', label: 'Director' },
+    { value: 'director_general', label: 'Director General' },
+    { value: 'director_general_adjunto', label: 'Director General Adjunto' },
+    { value: 'enlace_informacion', label: 'Enlace de Información' },
     { value: 'manager', label: 'Gerente' },
+    { value: 'inspector', label: 'Inspector' },
+    { value: 'investigador', label: 'Investigador' },
+    { value: 'jefe_departamento', label: 'Jefe de Departamento' },
+    { value: 'operator', label: 'Operador' },
+    { value: 'secretario_ejecutivo', label: 'Secretario Ejecutivo' },
+    { value: 'subdirector', label: 'Subdirector' },
+    { value: 'subsecretario', label: 'Subsecretario' },
     { value: 'supervisor', label: 'Supervisor' },
     { value: 'other', label: 'Otro' },
   ]
