@@ -7,7 +7,7 @@ const dashboardPassword = process.env.TESTING_DASHBOARD_PASSWORD || ''
 export class SurveyPage {
   private selectedAnswers: Record<string, string> = {}
 
-  constructor(private page: Page) {}
+  constructor(private page: Page) { }
 
   async #waitClickButton(buttonSelector: string) {
     const button = this.page.locator(buttonSelector)
@@ -94,6 +94,25 @@ export class SurveyPage {
     }
   }
 
+  async handleResumePrompt(accept: boolean) {
+    // Wait for SweetAlert prompt
+    await expect(
+      this.page.locator('h2.swal2-title:has-text("¿Continuar donde lo dejaste?")')
+    ).toBeVisible({ timeout: 5000 })
+
+    if (accept) {
+      await this.page.click('button.swal2-confirm:has-text("Sí, continuar")')
+    } else {
+      await this.page.click('button.swal2-cancel:has-text("No, empezar de nuevo")')
+    }
+  }
+
+  async verifyCurrentScreen(title: string) {
+    await expect(
+      this.page.locator(`h2:has-text("${title}")`)
+    ).toBeVisible({ timeout: 5000 })
+  }
+
   async #questionScreenValidateTitle(title: string) {
     await expect(this.page.locator(`h2:has-text("${title}")`)).toBeVisible({
       timeout: 3000,
@@ -149,7 +168,7 @@ export class SurveyPage {
         }
         this.selectedAnswers[questionTitleText || ''] = answerValue
         continue
-      } 
+      }
 
       // Select random answer if no answers are provided
       const optionsSelector = 'label input'

@@ -1,7 +1,9 @@
 import React, { useState } from 'react'
 import { useFormStore } from '../../store/formStore'
 import { validateEmail } from '../../lib/api/email-validation'
+import { fetchProgress } from '../../lib/api/progress'
 import { Dropdown } from '../ui/dropdown'
+import Swal from 'sweetalert2'
 
 interface GeneralDataScreenProps {
   currentScreen: number
@@ -16,7 +18,8 @@ export const GeneralDataScreen: React.FC<GeneralDataScreenProps> = ({
   onNext,
   onPrevious,
 }) => {
-  const { emailResponse, setEmail, setGeneralData } = useFormStore()
+  const { emailResponse, setEmail, setGeneralData, survey, loadSavedProgress } =
+    useFormStore()
   const [email, setLocalEmail] = useState(emailResponse?.email || '')
   const [name, setName] = useState(emailResponse?.name || '')
   const [gender, setGender] = useState(emailResponse?.gender || '')
@@ -26,7 +29,23 @@ export const GeneralDataScreen: React.FC<GeneralDataScreenProps> = ({
   const [nameError, setNameError] = useState('')
   const [emailError, setEmailError] = useState('')
   const [isValidating, setIsValidating] = useState(false)
+  const [isFetchingProgress, setIsFetchingProgress] = useState(false)
   const [isValid, setIsValid] = useState(false)
+
+  // Sync local state when emailResponse changes (e.g., after loading saved progress)
+  React.useEffect(() => {
+    if (emailResponse) {
+      if (emailResponse.email !== email)
+        setLocalEmail(emailResponse.email || '')
+      if (emailResponse.name !== name) setName(emailResponse.name || '')
+      if (emailResponse.gender !== gender) setGender(emailResponse.gender || '')
+      if (emailResponse.birthRange !== birthRange)
+        setBirthRange(emailResponse.birthRange || '')
+      if (emailResponse.position !== position)
+        setPosition(emailResponse.position || '')
+      if (emailResponse.email) setIsValid(true)
+    }
+  }, [emailResponse])
 
   // Dropdown options
   const GENDER_CHOICES = [
@@ -90,6 +109,60 @@ export const GeneralDataScreen: React.FC<GeneralDataScreenProps> = ({
       if (!emailIsValid) {
         setEmailError('El email no es válido')
         setError('El email no es válido')
+        return
+      }
+
+      // After successful validation, check for saved progress
+      if (survey) {
+        setIsFetchingProgress(true)
+        try {
+          const savedProgress = await fetchProgress(email, survey.id)
+
+          if (savedProgress) {
+            // Show resume prompt with SweetAlert2
+            const result = await Swal.fire({
+              title: '¿Continuar donde lo dejaste?',
+              text: 'Encontramos un progreso guardado. ¿Deseas continuar desde donde lo dejaste?',
+              icon: 'question',
+              showCancelButton: true,
+              confirmButtonText: 'Sí, continuar',
+              cancelButtonText: 'No, empezar de nuevo',
+              confirmButtonColor: 'var(--primary)',
+              cancelButtonColor: 'var(--muted-foreground)',
+              background: 'var(--background)',
+              color: 'var(--foreground)',
+              customClass: {
+                popup:
+                  'swal-popup-custom border border-border shadow-xl rounded-xl',
+                confirmButton:
+                  'swal-confirm-custom px-6 py-2 rounded-lg font-medium',
+                cancelButton:
+                  'swal-cancel-custom px-6 py-2 rounded-lg font-medium',
+              },
+            })
+
+            if (result.isConfirmed) {
+              // Load saved progress
+              loadSavedProgress(savedProgress)
+
+              Swal.fire({
+                icon: 'success',
+                title: 'Progreso Restaurado',
+                text: 'Tu progreso ha sido restaurado exitosamente.',
+                confirmButtonText: 'Continuar',
+                confirmButtonColor: 'var(--primary)',
+                background: 'var(--background)',
+                color: 'var(--foreground)',
+                timer: 2000,
+              })
+            }
+          }
+        } catch (progressError) {
+          console.error('Error fetching progress:', progressError)
+          // Don't block the user if progress fetch fails
+        } finally {
+          setIsFetchingProgress(false)
+        }
       }
     } catch (error) {
       setEmailError('Error al validar el email. Inténtalo de nuevo.')
@@ -145,6 +218,7 @@ export const GeneralDataScreen: React.FC<GeneralDataScreenProps> = ({
 
   const handleInputChange = (value: string) => {
     setLocalEmail(value)
+    setGeneralData('email', value)
     if (error) {
       setError('')
     }
@@ -173,7 +247,7 @@ export const GeneralDataScreen: React.FC<GeneralDataScreenProps> = ({
             <span className='text-sm text-muted-foreground'>
               {Math.min(
                 Math.round(((currentScreen + 1) / totalScreens) * 100),
-                100
+                100,
               )}
               % Completado
             </span>
@@ -184,7 +258,7 @@ export const GeneralDataScreen: React.FC<GeneralDataScreenProps> = ({
               style={{
                 width: `${Math.min(
                   ((currentScreen + 1) / totalScreens) * 100,
-                  100
+                  100,
                 )}%`,
                 backgroundColor: 'var(--primary)',
               }}
@@ -315,24 +389,31 @@ export const GeneralDataScreen: React.FC<GeneralDataScreenProps> = ({
             </span>
             <button
               onClick={handleNext}
-              disabled={!isValid}
-              className='px-6 py-3 rounded-lg transition-colors focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed'
+              disabled={!isValid || isValidating || isFetchingProgress}
+              className='px-6 py-3 rounded-lg transition-colors focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed flex items-center'
               style={{
                 backgroundColor: 'var(--primary)',
                 color: 'var(--primary-foreground)',
               }}
               onMouseEnter={(e) => {
-                if (isValid) {
+                if (isValid && !isValidating && !isFetchingProgress) {
                   e.currentTarget.style.backgroundColor = 'var(--secondary)'
                 }
               }}
               onMouseLeave={(e) => {
-                if (isValid) {
+                if (isValid && !isValidating && !isFetchingProgress) {
                   e.currentTarget.style.backgroundColor = 'var(--primary)'
                 }
               }}
             >
-              Continuar
+              {isFetchingProgress ? (
+                <>
+                  <span className='animate-spin rounded-full h-4 w-4 border-b-2 border-current mr-2'></span>
+                  Buscando progreso...
+                </>
+              ) : (
+                'Continuar'
+              )}
             </button>
           </div>
         </div>

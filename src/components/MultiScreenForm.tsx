@@ -1,10 +1,10 @@
-import React, { useState, useEffect } from 'react';
-import { useFormStore } from '../store/formStore';
-import { SurveyInfoScreen } from './screens/SurveyInfoScreen';
-import { QuestionScreen } from './screens/QuestionScreen';
-import { GuestCodeScreen } from './screens/GuestCodeScreen';
-import { GeneralDataScreen } from './screens/GeneralDataScreen';
-import { CompletionScreen } from './screens/CompletionScreen';
+import React, { useState, useEffect } from 'react'
+import { useFormStore } from '../store/formStore'
+import { SurveyInfoScreen } from './screens/SurveyInfoScreen'
+import { QuestionScreen } from './screens/QuestionScreen'
+import { GuestCodeScreen } from './screens/GuestCodeScreen'
+import { GeneralDataScreen } from './screens/GeneralDataScreen'
+import { CompletionScreen } from './screens/CompletionScreen'
 
 export const MultiScreenForm: React.FC = () => {
   const {
@@ -23,177 +23,203 @@ export const MultiScreenForm: React.FC = () => {
     isGuestCodeScreen,
     isGeneralDataScreen,
     getTotalScreens,
-    fetchSurveyData
-  } = useFormStore();
+    fetchSurveyData,
+    isSaving,
+    persistCurrentProgress,
+    emailResponse,
+  } = useFormStore()
 
   // Fetch survey data when component mounts
   useEffect(() => {
-    fetchSurveyData(1); // Fetch survey with ID 1
-  }, [fetchSurveyData]);
+    fetchSurveyData(1) // Fetch survey with ID 1
+  }, [fetchSurveyData])
 
-  const [errors, setErrors] = useState<Record<number, string>>({});
+  const [errors, setErrors] = useState<Record<number, string>>({})
 
-  const currentScreenData = getCurrentScreenData();
-  const currentScreenQuestions = getCurrentScreenQuestions();
+  const currentScreenData = getCurrentScreenData()
+  const currentScreenQuestions = getCurrentScreenQuestions()
 
   // Show loading state
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-          <p className="text-gray-600">Cargando encuesta...</p>
+      <div className='flex items-center justify-center min-h-screen'>
+        <div className='text-center'>
+          <div className='animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4'></div>
+          <p className='text-gray-600'>Cargando encuesta...</p>
         </div>
       </div>
-    );
+    )
   }
 
   // Show error state
   if (error) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="text-center">
-          <div className="text-red-600 text-xl mb-4">Error al cargar la encuesta</div>
-          <p className="text-gray-600 mb-4">{error}</p>
-          <button 
+      <div className='flex items-center justify-center min-h-screen'>
+        <div className='text-center'>
+          <div className='text-red-600 text-xl mb-4'>
+            Error al cargar la encuesta
+          </div>
+          <p className='text-gray-600 mb-4'>{error}</p>
+          <button
             onClick={() => fetchSurveyData(1)}
-            className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+            className='bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700'
           >
             Reintentar
           </button>
         </div>
       </div>
-    );
+    )
   }
 
   // Show loading state while survey is null
   if (!survey) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-          <p className="text-gray-600">Inicializando...</p>
+      <div className='flex items-center justify-center min-h-screen'>
+        <div className='text-center'>
+          <div className='animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4'></div>
+          <p className='text-gray-600'>Inicializando...</p>
         </div>
       </div>
-    );
+    )
   }
 
   const handleAnswerChange = (optionId: number, optionText: string) => {
     // Find the question ID from the current screen questions
-    const question = currentScreenQuestions.find(q => 
-      q.options.some(opt => opt.id === optionId)
-    );
-    
+    const question = currentScreenQuestions.find((q) =>
+      q.options.some((opt) => opt.id === optionId),
+    )
+
     if (question) {
-      updateResponse(question.id, optionId, optionText);
-      
+      updateResponse(question.id, optionId, optionText)
+
       // Clear error when user selects an option
       if (errors[question.id]) {
-        setErrors(prev => ({ ...prev, [question.id]: '' }));
+        setErrors((prev) => ({ ...prev, [question.id]: '' }))
       }
     }
-  };
+  }
 
   const validateCurrentScreen = () => {
     // Survey info screen, guest code screen, and email screen don't need validation
     if (isSurveyInfoScreen() || isGuestCodeScreen() || isGeneralDataScreen()) {
-      return true;
+      return true
     }
 
-    const newErrors: Record<number, string> = {};
-    let hasErrors = false;
+    const newErrors: Record<number, string> = {}
+    let hasErrors = false
 
     for (const question of currentScreenQuestions) {
-      const response = responses.find(r => r.questionId === question.id);
-      if (!response || response.optionId === null || response.optionId === undefined) {
-        newErrors[question.id] = 'Esta pregunta es obligatoria';
-        hasErrors = true;
+      const response = responses.find((r) => r.questionId === question.id)
+      if (
+        !response ||
+        response.optionId === null ||
+        response.optionId === undefined
+      ) {
+        newErrors[question.id] = 'Esta pregunta es obligatoria'
+        hasErrors = true
       }
     }
 
-    setErrors(newErrors);
-    return !hasErrors;
-  };
+    setErrors(newErrors)
+    return !hasErrors
+  }
 
   const handleNext = () => {
     if (!validateCurrentScreen()) {
-      return;
+      return
     }
-    
-    nextScreen();
-  };
+
+    nextScreen()
+    // Persist progress asynchronously
+    persistCurrentProgress()
+  }
 
   const handlePrevious = () => {
-    previousScreen();
-  };
-
-  // Survey Info Screen
-  if (isSurveyInfoScreen()) {
-    return (
-      <SurveyInfoScreen
-        surveyName={survey.name}
-        surveyInstructions={survey.instructions}
-        totalScreens={getTotalScreens()}
-        onNext={handleNext}
-      />
-    );
+    previousScreen()
   }
 
-  // Guest Code Screen
-  if (isGuestCodeScreen()) {
+  const renderScreen = () => {
+    // Survey Info Screen
+    if (isSurveyInfoScreen()) {
+      return (
+        <SurveyInfoScreen
+          surveyName={survey.name}
+          surveyInstructions={survey.instructions}
+          totalScreens={getTotalScreens()}
+          onNext={handleNext}
+        />
+      )
+    }
+
+    // Guest Code Screen
+    if (isGuestCodeScreen()) {
+      return (
+        <GuestCodeScreen
+          currentScreen={currentScreen}
+          totalScreens={getTotalScreens()}
+          onNext={handleNext}
+          onPrevious={handlePrevious}
+        />
+      )
+    }
+
+    // Email Screen
+    if (isGeneralDataScreen()) {
+      return (
+        <GeneralDataScreen
+          currentScreen={currentScreen}
+          totalScreens={getTotalScreens()}
+          onNext={handleNext}
+          onPrevious={handlePrevious}
+        />
+      )
+    }
+
+    // Completion Screen
+    if (isComplete) {
+      return <CompletionScreen responses={responses} />
+    }
+
+    // Get modifiers for the current screen
+    const isLastScreen = currentScreen >= 3 + survey.question_groups.length - 1
+    const modifiers = currentScreenData?.modifiers || []
+
+    // Render Question Screen
     return (
-      <GuestCodeScreen
+      <QuestionScreen
         currentScreen={currentScreen}
         totalScreens={getTotalScreens()}
-        onNext={handleNext}
-        onPrevious={handlePrevious}
-      />
-    );
-  }
-
-  // Email Screen
-  if (isGeneralDataScreen()) {
-    return (
-      <GeneralDataScreen
-        currentScreen={currentScreen}
-        totalScreens={getTotalScreens()}
-        onNext={handleNext}
-        onPrevious={handlePrevious}
-      />
-    );
-  }
-
-
-
-  // Completion Screen
-  if (isComplete) {
-    const allQuestions = survey.question_groups.flatMap(qg => qg.questions);
-    return (
-      <CompletionScreen
+        screenName={currentScreenData?.name || ''}
+        screenDetails={currentScreenData?.details || ''}
+        questions={currentScreenQuestions}
         responses={responses}
+        errors={errors}
+        onAnswerChange={handleAnswerChange}
+        onNext={handleNext}
+        onPrevious={handlePrevious}
+        isLastScreen={isLastScreen}
+        modifiers={modifiers}
       />
-    );
+    )
   }
 
-  // Get modifiers for the current screen
-  const isLastScreen = currentScreen >= (3 + survey.question_groups.length - 1);
-  const modifiers = currentScreenData?.modifiers || [];
-  
-  // Render Question Screen
   return (
-    <QuestionScreen
-      currentScreen={currentScreen}
-      totalScreens={getTotalScreens()}
-      screenName={currentScreenData?.name || ''}
-      screenDetails={currentScreenData?.details || ''}
-      questions={currentScreenQuestions}
-      responses={responses}
-      errors={errors}
-      onAnswerChange={handleAnswerChange}
-      onNext={handleNext}
-      onPrevious={handlePrevious}
-      isLastScreen={isLastScreen}
-      modifiers={modifiers}
-    />
-  );
-}; 
+    <>
+      {renderScreen()}
+
+      {/* Auto-save Indicator */}
+      <div
+        className={`fixed bottom-4 right-4 z-50 transition-all duration-300 transform ${
+          isSaving ? 'translate-y-0 opacity-100' : 'translate-y-10 opacity-0'
+        }`}
+      >
+        <div className='bg-background border border-border rounded-full px-4 py-2 shadow-lg flex items-center gap-2'>
+          <div className='animate-spin rounded-full h-3 w-3 border-b-2 border-primary'></div>
+          <span className='text-sm font-medium text-foreground'>
+            Guardando...
+          </span>
+        </div>
+      </div>
+    </>
+  )
+}

@@ -1,5 +1,6 @@
 import { create } from 'zustand';
 import { fetchSurvey } from '../lib/api/survey';
+import { saveProgress, type ProgressData } from '../lib/api/progress';
 
 export interface Option {
   id: number;
@@ -63,14 +64,15 @@ interface FormStore {
   guestCodeResponse: GuestCodeResponse | null;
   emailResponse: EmailResponse | null;
   isComplete: boolean;
-  
+  isSaving: boolean;
+
   // Actions
   setCurrentScreen: (screen: number) => void;
   addResponse: (response: FormResponse) => void;
   updateResponse: (questionId: number, optionId: number, answer: string) => void;
   setGuestCode: (guestCode: string) => void;
   setEmail: (email: string, name?: string, gender?: string, birthRange?: string, position?: string) => void;
-  setGeneralData: (field: 'name' | 'gender' | 'birthRange' | 'position', value: string) => void;
+  setGeneralData: (field: 'email' | 'name' | 'gender' | 'birthRange' | 'position', value: string) => void;
   fetchSurveyData: (surveyId: number) => Promise<void>;
   nextScreen: () => void;
   previousScreen: () => void;
@@ -85,6 +87,8 @@ interface FormStore {
   getCurrentQuestionGroupIndex: () => number;
   getTotalScreens: () => number;
   getAllSurveyQuestions: () => Question[];
+  loadSavedProgress: (progressData: ProgressData) => void;
+  persistCurrentProgress: () => Promise<boolean>;
 }
 
 
@@ -98,6 +102,7 @@ export const useFormStore = create<FormStore>((set, get) => ({
   guestCodeResponse: null,
   emailResponse: null,
   isComplete: false,
+  isSaving: false,
 
   fetchSurveyData: async (surveyId: number) => {
     try {
@@ -105,9 +110,9 @@ export const useFormStore = create<FormStore>((set, get) => ({
       const surveyData = await fetchSurvey(surveyId);
       set({ survey: surveyData, isLoading: false });
     } catch (error) {
-      set({ 
-        error: error instanceof Error ? error.message : 'Failed to fetch survey data', 
-        isLoading: false 
+      set({
+        error: error instanceof Error ? error.message : 'Failed to fetch survey data',
+        isLoading: false
       });
     }
   },
@@ -119,10 +124,10 @@ export const useFormStore = create<FormStore>((set, get) => ({
   addResponse: (response: FormResponse) => {
     const { responses } = get();
     const existingIndex = responses.findIndex(r => r.questionId === response.questionId);
-    
+
     if (existingIndex >= 0) {
       set({
-        responses: responses.map((r, index) => 
+        responses: responses.map((r, index) =>
           index === existingIndex ? response : r
         )
       });
@@ -143,22 +148,25 @@ export const useFormStore = create<FormStore>((set, get) => ({
     set({ emailResponse: { email, name, gender, birthRange, position } });
   },
 
-  setGeneralData: (field: 'name' | 'gender' | 'birthRange' | 'position', value: string) => {
+  setGeneralData: (field: 'email' | 'name' | 'gender' | 'birthRange' | 'position', value: string) => {
     const { emailResponse } = get();
-    if (emailResponse) {
-      set({ 
-        emailResponse: { 
-          ...emailResponse, 
-          [field]: value 
-        } 
-      });
-    }
+    set({
+      emailResponse: {
+        email: emailResponse?.email || '',
+        name: emailResponse?.name || '',
+        gender: emailResponse?.gender || '',
+        birthRange: emailResponse?.birthRange || '',
+        position: emailResponse?.position || '',
+        ...emailResponse,
+        [field]: value
+      }
+    });
   },
 
   nextScreen: () => {
     const { currentScreen, survey } = get();
     if (!survey) return;
-    
+
     if (currentScreen === 0) {
       // Move from survey info to guest code screen
       set({ currentScreen: 1 });
@@ -187,16 +195,16 @@ export const useFormStore = create<FormStore>((set, get) => ({
   canProceed: () => {
     const { currentScreen, responses, survey } = get();
     if (!survey) return false;
-    
+
     // Survey info screen, guest code screen, email screen, and question group info screens don't require validation
     if (currentScreen === 0 || currentScreen === 1 || currentScreen === 2 || currentScreen % 2 === 1) {
       return true;
     }
-    
+
     // Only question screens need validation
     const questionGroupIndex = Math.floor((currentScreen - 4) / 2);
     const currentScreenData = survey.question_groups[questionGroupIndex];
-    
+
     // Check if all required questions on the current screen are answered
     for (const question of currentScreenData.questions) {
       const response = responses.find(r => r.questionId === question.id);
@@ -204,38 +212,38 @@ export const useFormStore = create<FormStore>((set, get) => ({
         return false;
       }
     }
-    
+
     return true;
   },
 
   getCurrentScreenQuestions: () => {
     const { currentScreen, survey } = get();
     if (!survey) return [];
-    
+
     // Survey info screen, guest code screen, and email screen have no questions
     if (currentScreen === 0 || currentScreen === 1 || currentScreen === 2) {
       return [];
     }
-    
+
     // Question screens (starting from 3) have questions
     if (currentScreen > 2) {
       const questionGroupIndex = currentScreen - 3;
       const currentScreenData = survey.question_groups[questionGroupIndex];
       return currentScreenData.questions;
     }
-    
+
     return [];
   },
 
   getCurrentScreenData: () => {
     const { currentScreen, survey } = get();
     if (!survey) return null;
-    
+
     // Survey info screen, guest code screen, and email screen have no question group data
     if (currentScreen <= 2) {
       return null;
     }
-    
+
     // Question screens need the question group data
     const questionGroupIndex = currentScreen - 3;
     return survey.question_groups[questionGroupIndex];
@@ -290,7 +298,56 @@ export const useFormStore = create<FormStore>((set, get) => ({
       responses: [],
       guestCodeResponse: null,
       emailResponse: null,
+      isComplete: false,
+      isSaving: false
+    });
+  },
+
+  loadSavedProgress: (progressData: ProgressData) => {
+    set({
+      currentScreen: progressData.current_screen,
+      responses: progressData.data.responses,
+      guestCodeResponse: progressData.data.guestCodeResponse,
+      emailResponse: progressData.data.emailResponse,
       isComplete: false
     });
+  },
+
+  persistCurrentProgress: async () => {
+    const { currentScreen, responses, guestCodeResponse, emailResponse, survey, isComplete } = get();
+
+    // Do not persist if the form is already complete to avoid race conditions with cleanup
+    if (isComplete) return false;
+
+    // Only warn if we're past the email screen and missing email
+    if (!emailResponse?.email || !survey) {
+      if (currentScreen > 2) {
+        console.warn('Cannot persist progress: missing email or survey');
+      }
+      return false;
+    }
+
+
+    set({ isSaving: true });
+
+    try {
+      await saveProgress({
+        email: emailResponse.email,
+        survey: survey.id,
+        current_screen: currentScreen,
+        data: {
+          guestCodeResponse,
+          emailResponse,
+          responses
+        }
+      });
+
+      set({ isSaving: false });
+      return true;
+    } catch (error) {
+      console.error('Failed to persist progress:', error);
+      set({ isSaving: false });
+      return false;
+    }
   }
 })); 
