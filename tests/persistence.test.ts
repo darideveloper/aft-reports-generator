@@ -118,7 +118,7 @@ test.describe('Persistence Features', () => {
 
     test('cleanup_on_completion', async ({ page }) => {
         const survey = new SurveyPage(page);
-        test.setTimeout(120000); // Extended timeout for full survey run
+        test.setTimeout(300000); // Extended timeout for full survey run
 
         // 1. Setup: Complete the entire survey
         await survey.goto();
@@ -151,9 +151,13 @@ test.describe('Persistence Features', () => {
         const cleanupResponse = await cleanupResponsePromise;
         expect(cleanupResponse.ok()).toBeTruthy();
 
-        // We cannot reliably verify UI behavior here because reusing the email might be blocked by the backend,
-        // which prevents us from reaching the "saved progress" check logic.
-        // Assuming the DELETE call success implies clean up on the server.
+        // 3. Fill form again (first screen)
+        await survey.goto();
+        await survey.surveyInfoScreen();
+        await survey.guestCodeScreen(guestCode);
+
+        // 4. Verification: Should not show prompt and email should be invalid
+        await survey.generalDataScreen(testEmail, true);
     });
 
 });
