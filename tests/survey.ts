@@ -94,6 +94,14 @@ export class SurveyPage {
     }
   }
 
+  async isEmailValidationMessageVisible(): Promise<boolean> {
+    return await this.page.locator('p:has-text("✅ Email válido")').isVisible();
+  }
+
+  async isEmailErrorMessageVisible(): Promise<boolean> {
+    return await this.page.locator('p.text-destructive').isVisible();
+  }
+
   async handleResumePrompt(accept: boolean) {
     // Wait for SweetAlert prompt
     await expect(

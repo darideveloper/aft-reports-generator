@@ -31,9 +31,11 @@ export const GeneralDataScreen: React.FC<GeneralDataScreenProps> = ({
   const [isValidating, setIsValidating] = useState(false)
   const [isFetchingProgress, setIsFetchingProgress] = useState(false)
   const [isValid, setIsValid] = useState(false)
+  const [hasValidated, setHasValidated] = useState(false)
 
   // Sync local state when emailResponse changes (e.g., after loading saved progress)
   React.useEffect(() => {
+    console.log({ emailResponse })
     if (emailResponse) {
       if (emailResponse.email !== email)
         setLocalEmail(emailResponse.email || '')
@@ -43,7 +45,10 @@ export const GeneralDataScreen: React.FC<GeneralDataScreenProps> = ({
         setBirthRange(emailResponse.birthRange || '')
       if (emailResponse.position !== position)
         setPosition(emailResponse.position || '')
-      if (emailResponse.email) setIsValid(true)
+      if (emailResponse.email) {
+        setIsValid(true)
+        setHasValidated(true)
+      }
     }
   }, [emailResponse])
 
@@ -84,6 +89,8 @@ export const GeneralDataScreen: React.FC<GeneralDataScreenProps> = ({
   ]
 
   const handleValidate = async () => {
+    setHasValidated(true)
+
     if (!email.trim()) {
       setEmailError('El email es obligatorio')
       setError('El email es obligatorio')
@@ -218,7 +225,7 @@ export const GeneralDataScreen: React.FC<GeneralDataScreenProps> = ({
 
   const handleInputChange = (value: string) => {
     setLocalEmail(value)
-    setGeneralData('email', value)
+    // setGeneralData('email', value)
     if (error) {
       setError('')
     }
@@ -227,6 +234,7 @@ export const GeneralDataScreen: React.FC<GeneralDataScreenProps> = ({
     }
     // Reset validation state when user changes input
     setIsValid(false)
+    setHasValidated(false)
   }
 
   return (
@@ -269,31 +277,6 @@ export const GeneralDataScreen: React.FC<GeneralDataScreenProps> = ({
         <div className='text-left space-y-4'>
           <div>
             <label
-              htmlFor='name'
-              className='block text-sm font-medium text-foreground mb-2'
-            >
-              Nombre <span className='text-destructive'>*</span>
-            </label>
-            <input
-              id='name'
-              type='text'
-              value={name}
-              onChange={(e) => {
-                setName(e.target.value)
-                setGeneralData('name', e.target.value)
-                if (nameError) setNameError('')
-                if (error) setError('')
-              }}
-              className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-ring focus:border-transparent transition-colors bg-background text-foreground placeholder:text-muted-foreground ${
-                nameError ? 'border-destructive' : 'border-input'
-              }`}
-              placeholder='Ingresa tu nombre'
-              required
-            />
-          </div>
-
-          <div>
-            <label
               htmlFor='email'
               className='block text-sm font-medium text-foreground mb-2'
             >
@@ -318,12 +301,37 @@ export const GeneralDataScreen: React.FC<GeneralDataScreenProps> = ({
                 {isValidating ? 'Validando...' : 'Validar'}
               </button>
             </div>
-            {error && <p className='text-destructive text-sm mt-1'>{error}</p>}
-            {isValid && !error && (
+            {hasValidated && error && (
+              <p className='text-destructive text-sm mt-1'>{error}</p>
+            )}
+            {hasValidated && isValid && !error && (
               <p className='text-green-600 text-sm mt-1'>
                 ✅ Email válido - Puedes continuar
               </p>
             )}
+          </div>
+          <div>
+            <label
+              htmlFor='name'
+              className='block text-sm font-medium text-foreground mb-2'
+            >
+              Nombre <span className='text-destructive'>*</span>
+            </label>
+            <input
+              id='name'
+              type='text'
+              value={name}
+              onChange={(e) => {
+                setName(e.target.value)
+                if (nameError) setNameError('')
+                if (error) setError('')
+              }}
+              className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-ring focus:border-transparent transition-colors bg-background text-foreground placeholder:text-muted-foreground ${
+                nameError ? 'border-destructive' : 'border-input'
+              }`}
+              placeholder='Ingresa tu nombre'
+              required
+            />
           </div>
 
           <Dropdown
@@ -333,7 +341,6 @@ export const GeneralDataScreen: React.FC<GeneralDataScreenProps> = ({
             options={GENDER_CHOICES}
             onChange={(value) => {
               setGender(value)
-              setGeneralData('gender', value)
               if (error) setError('')
             }}
             placeholder='Selecciona tu género'
@@ -347,7 +354,6 @@ export const GeneralDataScreen: React.FC<GeneralDataScreenProps> = ({
             options={BIRTH_RANGE_CHOICES}
             onChange={(value) => {
               setBirthRange(value)
-              setGeneralData('birthRange', value)
               if (error) setError('')
             }}
             placeholder='Selecciona tu rango de nacimiento'
@@ -361,7 +367,6 @@ export const GeneralDataScreen: React.FC<GeneralDataScreenProps> = ({
             options={POSITION_CHOICES}
             onChange={(value) => {
               setPosition(value)
-              setGeneralData('position', value)
               if (error) setError('')
             }}
             placeholder='Selecciona tu posición'
@@ -394,16 +399,16 @@ export const GeneralDataScreen: React.FC<GeneralDataScreenProps> = ({
               style={{
                 backgroundColor: 'var(--primary)',
                 color: 'var(--primary-foreground)',
-                onMouseEnter: (e) => {
-                  if (isValid && !isValidating && !isFetchingProgress) {
-                    e.currentTarget.style.backgroundColor = 'var(--secondary)'
-                  }
-                },
-                onMouseLeave: (e) => {
-                  if (isValid && !isValidating && !isFetchingProgress) {
-                    e.currentTarget.style.backgroundColor = 'var(--primary)'
-                  }
-                },
+              }}
+              onMouseEnter={(e) => {
+                if (isValid && !isValidating && !isFetchingProgress) {
+                  e.currentTarget.style.backgroundColor = 'var(--secondary)'
+                }
+              }}
+              onMouseLeave={(e) => {
+                if (isValid && !isValidating && !isFetchingProgress) {
+                  e.currentTarget.style.backgroundColor = 'var(--primary)'
+                }
               }}
             >
               {isFetchingProgress ? (

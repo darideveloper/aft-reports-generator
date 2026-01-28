@@ -51,6 +51,116 @@ test('invalid_email_already_exists', async ({ page }) => {
   await survey.generalDataScreen(invalidEmail, true);
 });
 
+// Email validation feedback tests
+test('email_validation_message_hidden_before_validate', async ({ page }) => {
+  const survey = new SurveyPage(page);
+
+  await survey.goto();
+  await survey.surveyInfoScreen();
+  await survey.guestCodeScreen(guestCode);
+
+  // Wait for General Data screen
+  await expect(page.locator('h2:has-text("Datos Generales")')).toBeVisible({ timeout: 3000 });
+
+  // Fill fields but don't click Validar
+  await page.fill('input[id="name"]', 'Test User');
+  await page.fill('input[id="email"]', validEmail);
+
+  // Assert: No validation messages should be visible
+  await expect(page.locator('p:has-text("✅ Email válido")')).not.toBeVisible();
+  await expect(page.locator('p.text-destructive:has-text("El email no es válido")')).not.toBeVisible();
+});
+
+test('email_validation_message_shown_after_validate', async ({ page }) => {
+  const survey = new SurveyPage(page);
+
+  // Clean up first
+  await survey.dashboardDeleteParticipant(validEmail);
+  await survey.dashboardDeleteProgress(validEmail);
+
+  await survey.goto();
+  await survey.surveyInfoScreen();
+  await survey.guestCodeScreen(guestCode);
+
+  // Wait for General Data screen
+  await expect(page.locator('h2:has-text("Datos Generales")')).toBeVisible({ timeout: 3000 });
+
+  // Fill fields
+  await page.fill('input[id="name"]', 'Test User');
+  await page.selectOption('select[id="gender"]', 'Masculino');
+  await page.selectOption('select[id="birthRange"]', '1946-1964');
+  await page.selectOption('select[id="position"]', 'Director');
+  await page.fill('input[id="email"]', validEmail);
+
+  // Click Validar
+  await page.click('button:has-text("Validar")');
+
+  // Wait for validation to complete
+  await expect(page.locator('button:has-text("Validar")')).toBeVisible({ timeout: 5000 });
+
+  // Assert: Success message should be visible
+  await expect(page.locator('p:has-text("✅ Email válido")')).toBeVisible({ timeout: 2000 });
+});
+
+test('email_validation_message_hides_on_email_change', async ({ page }) => {
+  const survey = new SurveyPage(page);
+
+  // Clean up first
+  await survey.dashboardDeleteParticipant(validEmail);
+  await survey.dashboardDeleteProgress(validEmail);
+
+  await survey.goto();
+  await survey.surveyInfoScreen();
+  await survey.guestCodeScreen(guestCode);
+
+  // Wait for General Data screen
+  await expect(page.locator('h2:has-text("Datos Generales")')).toBeVisible({ timeout: 3000 });
+
+  // Fill fields
+  await page.fill('input[id="name"]', 'Test User');
+  await page.selectOption('select[id="gender"]', 'Masculino');
+  await page.selectOption('select[id="birthRange"]', '1946-1964');
+  await page.selectOption('select[id="position"]', 'Director');
+  await page.fill('input[id="email"]', validEmail);
+
+  // Click Validar and wait
+  await page.click('button:has-text("Validar")');
+  await expect(page.locator('p:has-text("✅ Email válido")')).toBeVisible({ timeout: 5000 });
+
+  // Modify email
+  await page.fill('input[id="email"]', 'modified@example.com');
+
+  // Assert: Success message should disappear
+  await expect(page.locator('p:has-text("✅ Email válido")')).not.toBeVisible();
+});
+
+test('email_error_message_only_after_validate', async ({ page }) => {
+  const survey = new SurveyPage(page);
+
+  await survey.goto();
+  await survey.surveyInfoScreen();
+  await survey.guestCodeScreen(guestCode);
+
+  // Wait for General Data screen
+  await expect(page.locator('h2:has-text("Datos Generales")')).toBeVisible({ timeout: 3000 });
+
+  // Fill fields with invalid email
+  await page.fill('input[id="name"]', 'Test User');
+  await page.fill('input[id="email"]', invalidEmail);
+
+  // Assert: No error message before validation
+  await expect(page.locator('p.text-destructive:has-text("El email no es válido")')).not.toBeVisible();
+
+  // Click Validar
+  await page.click('button:has-text("Validar")');
+
+  // Wait for validation to complete
+  await expect(page.locator('button:has-text("Validar")')).toBeVisible({ timeout: 5000 });
+
+  // Assert: Error message should now be visible
+  await expect(page.locator('p.text-destructive:has-text("El email no es válido")')).toBeVisible({ timeout: 2000 });
+});
+
 test('repeted_options_grid', async ({ page }) => {
 
   // Delete from prod dashboard test user
