@@ -33,3 +33,12 @@ The system SHALL mark the progress as finished in the backend upon final form su
 - **WHEN** the user reaches the completion screen
 - **THEN** the system SHALL send a final `POST /complete-form` (or similar) to mark the record as finished
 
+### Requirement: Data Loading
+The application MUST sanitize data when loading saved progress from the API to ensure no double-serialization occurs.
+
+#### Scenario: Sanitize Double-Quoted Strings
+-   **Given** the saved progress data contains string fields wrapped in extra quotes (e.g., `position: "\"director_general\""`).
+-   **When** the application loads this progress.
+-   **Then** the application state MUST contain the clean string value (e.g., `position: "director_general"`).
+-   **And** the user MUST be able to submit the form successfully without "Invalid data" errors.
+

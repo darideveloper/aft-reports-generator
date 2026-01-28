@@ -3,7 +3,7 @@
 ## Background
 The application allows users to save their progress and resume later. Data integrity must be maintained through the Save/Load cycle to ensure final submission succeeds.
 
-## MODIFIED Requirements
+## ADDED Requirements
 
 ### Requirement: Data Loading
 The application MUST sanitize data when loading saved progress from the API to ensure no double-serialization occurs.
