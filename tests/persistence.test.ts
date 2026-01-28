@@ -62,6 +62,66 @@ test.describe('Persistence Features', () => {
         await survey.verifyCurrentScreen('TEMA 2 -  Evolución de la tecnología');
     });
 
+    test('sanitization_of_double_quoted_data', async ({ page }) => {
+        const survey = new SurveyPage(page);
+
+        // Mock response with double-quoted strings (simulating the bug)
+        await page.route('**/progress/?email=**', async route => {
+            const json = {
+                current_screen: 3, // Start at TEMA 1
+                email: testEmail,
+                survey_id: 1,
+                data: {
+                    emailResponse: {
+                        email: testEmail,
+                        name: "\"John Doe\"", // Double quoted
+                        gender: "\"m\"",
+                        birthRange: "\"1981-1996\"",
+                        position: "\"director_general\"",
+                    },
+                    responses: [],
+                    guestCodeResponse: { guestCode: guestCode }
+                }
+            };
+            await route.fulfill({ json });
+        });
+
+        // 1. Setup: Start
+        await survey.goto();
+        await survey.surveyInfoScreen();
+        await survey.guestCodeScreen(guestCode);
+
+        // 2. Action: Validate email to trigger fetchProgress
+        await expect(page.locator('h2:has-text("Datos Generales")')).toBeVisible();
+        await page.fill('input[id="email"]', testEmail);
+        await page.click('button:has-text("Validar")');
+
+        // 3. Verification: Resume Prompt
+        await survey.handleResumePrompt(true);
+
+        // 4. Verify we are at TEMA 1 (Screen 3)
+        // Note: verifyCurrentScreen looks for header text.
+        // Assuming TEMA 1 header is 'TEMA 1 - Antecedentes tecnológicos'
+        await expect(page.getByText('TEMA 1 - Antecedentes tecnológicos', { exact: false })).toBeVisible();
+
+        // 5. Go back to General Data to check values
+        await page.click('button:has-text("Anterior")');
+        await expect(page.locator('h2:has-text("Datos Generales")')).toBeVisible();
+
+        // 6. Verify inputs are CLEAN (no quotes)
+        await expect(page.locator('input[id="name"]')).toHaveValue('John Doe');
+
+        // For dropdowns, we check the value or the displayed text. 
+        // Value logic depends on how dropdown is implemented. 
+        // Assuming standard select or controlled component where value prop matches.
+        // The Dropdown component likely uses a hidden input or just state.
+        // Let's check internal form state via UI if possible, or visually.
+        // The test helper selectOption uses select[id=...]. 
+        // Let's assume standard behavior:
+        await expect(page.locator('select[id="gender"]')).toHaveValue('m');
+        await expect(page.locator('select[id="position"]')).toHaveValue('director_general');
+    });
+
     test('discard_saved_progress', async ({ page }) => {
         const survey = new SurveyPage(page);
 
