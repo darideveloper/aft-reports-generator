@@ -28,4 +28,20 @@
     top: document.body.scrollHeight,
     behavior: 'smooth'
   })
+
+  // 4. Find and click "Next" or "Enviar" button
+  setTimeout(() => {
+    const buttons = Array.from(document.querySelectorAll('button'))
+    const nextButton = buttons.find(btn => {
+      const text = btn.textContent.trim().toLowerCase()
+      return text.includes('siguiente') || text.includes('enviar') || text.includes('next') || text.includes('continue')
+    })
+
+    if (nextButton) {
+      console.log('Found next button:', nextButton.textContent)
+      nextButton.click()
+    } else {
+      console.log('Next button not found')
+    }
+  }, 1000) // Wait a bit for scroll and any animations
 })()

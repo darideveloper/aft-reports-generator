@@ -304,11 +304,30 @@ export const useFormStore = create<FormStore>((set, get) => ({
   },
 
   loadSavedProgress: (progressData: ProgressData) => {
+    const sanitizeString = (str: string | undefined | null): string => {
+      if (!str) return '';
+      // Check if string is wrapped in quotes and strip them
+      if (str.length >= 2 && str.startsWith('"') && str.endsWith('"')) {
+        return str.slice(1, -1);
+      }
+      return str;
+    };
+
+    const rawEmailResponse = progressData.data.emailResponse;
+    const sanitizedEmailResponse = rawEmailResponse ? {
+      ...rawEmailResponse,
+      name: sanitizeString(rawEmailResponse.name),
+      gender: sanitizeString(rawEmailResponse.gender),
+      birthRange: sanitizeString(rawEmailResponse.birthRange),
+      position: sanitizeString(rawEmailResponse.position),
+      email: rawEmailResponse.email // Email is typically clean/primary key, but keeping it as is for now.
+    } : null;
+
     set({
       currentScreen: progressData.current_screen,
       responses: progressData.data.responses,
       guestCodeResponse: progressData.data.guestCodeResponse,
-      emailResponse: progressData.data.emailResponse,
+      emailResponse: sanitizedEmailResponse,
       isComplete: false
     });
   },
