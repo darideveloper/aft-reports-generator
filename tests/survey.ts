@@ -255,6 +255,19 @@ export class SurveyPage {
     await this.page.click('button[type="submit"]')
   }
 
+  async #deleteAllRegisters(links: Locator[]) {
+    for (const link of links) {
+      // Click in first user link
+      await link.click()
+
+      // Wait and click delete button
+      await this.#waitClickButton('a:has-text("Eliminar")')
+
+      // Wait and click confirm button
+      await this.#waitClickButton('input[value="Si, estoy seguro"]')
+    }
+  }
+
   async dashboardSearchTotalQuestionGroup(
     email: string,
     questionGroupIndex: number,
@@ -311,22 +324,54 @@ export class SurveyPage {
     }
   }
 
+  async dashboardSearchProgress(
+    email: string,
+    login: boolean = false
+  ): Promise<{ count: number; usersLinks: Locator[] }> {
+    // Login and search user
+    if (login) {
+      await this.#loginDashboard()
+    }
+
+    // Open participants page
+    await this.page.goto(dashboardUrl + `/admin/survey/formprogress/?q=${email}`)
+
+    // Validage page h1 "Participantes"
+    await expect(
+      this.page.locator('h1:has-text("Progresos de Formularios")')
+    ).toBeVisible()
+
+    // Get users found but not fields it no data
+    const users = this.page.locator('.field-email a')
+    const count = await users
+      .first()
+      .waitFor({ timeout: 2000 })
+      .then(() => users.count())
+      .catch(() => 0)
+    return {
+      count: count,
+      usersLinks: await users.all(),
+    }
+  }
+
   async dashboardDeleteParticipant(email: string) {
     // login and search user
     const { count: userCount, usersLinks } = await this.dashboardSearchUser(
       email
     )
 
-    if (userCount > 0) {
-      // Click in first user link
-      await usersLinks[0].click()
+    // Delete all users found
+    await this.#deleteAllRegisters(usersLinks)
+  }
 
-      // Wait and click delete button
-      await this.#waitClickButton('a:has-text("Eliminar")')
+  async dashboardDeleteProgress(email: string) {
+    // login and search user
+    const { count: userCount, usersLinks } = await this.dashboardSearchProgress(
+      email
+    )
 
-      // Wait and click confirm button
-      await this.#waitClickButton('input[value="Si, estoy seguro"]')
-    }
+    // Delete all users found
+    await this.#deleteAllRegisters(usersLinks)
   }
 
   async confirmationScreen() {

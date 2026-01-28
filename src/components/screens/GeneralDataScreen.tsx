@@ -394,16 +394,16 @@ export const GeneralDataScreen: React.FC<GeneralDataScreenProps> = ({
               style={{
                 backgroundColor: 'var(--primary)',
                 color: 'var(--primary-foreground)',
-              }}
-              onMouseEnter={(e) => {
-                if (isValid && !isValidating && !isFetchingProgress) {
-                  e.currentTarget.style.backgroundColor = 'var(--secondary)'
-                }
-              }}
-              onMouseLeave={(e) => {
-                if (isValid && !isValidating && !isFetchingProgress) {
-                  e.currentTarget.style.backgroundColor = 'var(--primary)'
-                }
+                onMouseEnter: (e) => {
+                  if (isValid && !isValidating && !isFetchingProgress) {
+                    e.currentTarget.style.backgroundColor = 'var(--secondary)'
+                  }
+                },
+                onMouseLeave: (e) => {
+                  if (isValid && !isValidating && !isFetchingProgress) {
+                    e.currentTarget.style.backgroundColor = 'var(--primary)'
+                  }
+                },
               }}
             >
               {isFetchingProgress ? (

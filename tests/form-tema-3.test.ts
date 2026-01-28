@@ -19,6 +19,7 @@ test('10_of_12_correct_answers', async ({ page }) => {
   // Delete from prod dashboard test user
   const survey = new SurveyPage(page);
   await survey.dashboardDeleteParticipant(validEmail);
+  await survey.dashboardDeleteProgress(validEmail);
 
   // Basic setup
   await survey.goto();
@@ -67,6 +68,7 @@ test('11_of_12_correct_answers', async ({ page }) => {
   // Delete from prod dashboard test user
   const survey = new SurveyPage(page);
   await survey.dashboardDeleteParticipant(validEmail);
+  await survey.dashboardDeleteProgress(validEmail);
 
   // Basic setup
   await survey.goto();
@@ -115,6 +117,7 @@ test('12_of_12_correct_answers', async ({ page }) => {
   // Delete from prod dashboard test user
   const survey = new SurveyPage(page);
   await survey.dashboardDeleteParticipant(validEmail);
+  await survey.dashboardDeleteProgress(validEmail);
 
   // Basic setup
   await survey.goto();

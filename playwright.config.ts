@@ -13,7 +13,7 @@ console.log('Mode:', mode);
 
 // Load the appropriate env file based on mode
 const envFile = mode === 'production' ? '.env.production' : '.env.local';
-console.log({envFile})
+console.log({ envFile })
 console.log('Loading environment file:', envFile);
 
 // Show all env variables
@@ -30,7 +30,7 @@ console.log('Production mode:', isProd);
 
 export default defineConfig({
   testDir: './tests',              // folder for tests
-  timeout: 120 * 1000,              // 120s per test
+  timeout: 300 * 1000,              // 300s/5m per test
   webServer: {
     command: isProd ? 'npm run build && npm run preview' : 'npm run dev',
     port: isProd ? 4173 : 5173,

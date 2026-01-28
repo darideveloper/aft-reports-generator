@@ -14,6 +14,7 @@ export interface ProgressData {
 export interface SaveProgressPayload {
     email: string;
     survey: number;
+    survey_id?: number;
     current_screen: number;
     data: {
         guestCodeResponse: GuestCodeResponse | null;
@@ -70,7 +71,7 @@ export const fetchProgress = async (email: string, surveyId: number): Promise<Pr
         }
 
         const response = await fetch(
-            `${apiEndpoint}/progress/?email=${encodeURIComponent(email)}&survey=${surveyId}`,
+            `${apiEndpoint}/progress/?email=${encodeURIComponent(email)}&survey_id=${surveyId}`,
             {
                 method: 'GET',
                 headers: {
@@ -112,7 +113,7 @@ export const completeProgress = async (email: string, surveyId: number): Promise
         }
 
         const response = await fetch(
-            `${apiEndpoint}/progress/?email=${encodeURIComponent(email)}&survey=${surveyId}`,
+            `${apiEndpoint}/progress/?email=${encodeURIComponent(email)}&survey_id=${surveyId}`,
             {
                 method: 'DELETE',
                 headers: {

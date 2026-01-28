@@ -34,6 +34,7 @@ test('valid_email', async ({ page }) => {
   // Delete from prod dashboard test user
   const survey = new SurveyPage(page);
   await survey.dashboardDeleteParticipant(validEmail);
+  await survey.dashboardDeleteProgress(validEmail);
 
   await survey.goto();
   await survey.surveyInfoScreen();
@@ -55,6 +56,7 @@ test('repeted_options_grid', async ({ page }) => {
   // Delete from prod dashboard test user
   const survey = new SurveyPage(page);
   await survey.dashboardDeleteParticipant(validEmail);
+  await survey.dashboardDeleteProgress(validEmail);
 
   // Basic setup
   await survey.goto();
@@ -82,6 +84,7 @@ test('correct_answers_confirmation_screen', async ({ page }) => {
   // Delete from prod dashboard test user
   const survey = new SurveyPage(page);
   await survey.dashboardDeleteParticipant(validEmail);
+  await survey.dashboardDeleteProgress(validEmail);
 
   // Basic setup
   await survey.goto();
@@ -113,6 +116,7 @@ test('submit_form', async ({ page }) => {
   // Delete from prod dashboard test user
   const survey = new SurveyPage(page);
   await survey.dashboardDeleteParticipant(validEmail);
+  await survey.dashboardDeleteProgress(validEmail);
 
   // Basic setup
   await survey.goto();

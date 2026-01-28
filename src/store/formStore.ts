@@ -334,6 +334,7 @@ export const useFormStore = create<FormStore>((set, get) => ({
       await saveProgress({
         email: emailResponse.email,
         survey: survey.id,
+        survey_id: survey.id,
         current_screen: currentScreen,
         data: {
           guestCodeResponse,
