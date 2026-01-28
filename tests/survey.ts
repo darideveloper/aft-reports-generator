@@ -191,6 +191,9 @@ export class SurveyPage {
     }
 
     await this.#questionValidateNextButton(lastScreen, disableNext)
+
+    // Wait 10 seconds (to load next screen or / and submit data)
+    await this.page.waitForTimeout(10000)
   }
 
   async questionScreenGrid(
