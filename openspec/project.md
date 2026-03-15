@@ -1,56 +1,63 @@
 # Project Context
 
 ## Purpose
-The **AFT Reports Generator** is a React-based web application designed to generate reports for the AFT Dashboard. It features an invitation code validation system that grants users access to report generation tools. The application interacts with the AFT Dashboard API to validate codes and potentially submit or retrieve report data.
+The **AFT Reports Generator** is a multi-step survey and report generation application. It is designed to collect structured feedback through a series of screens, starting with invitation code validation and participant demographic data, followed by themed survey questions. The application ensures data integrity and user progress persistence, ultimately submitting collected responses to the AFT Dashboard API.
 
 ## Tech Stack
-- **Framework:** React 19, Vite 7
-- **Language:** TypeScript
-- **Styling:** TailwindCSS 4, Vanilla CSS (Variables), `tw-animate-css`
-- **State Management:** Zustand
-- **Testing:** Playwright (E2E/Integration)
+- **Framework:** React 19.2+, Vite 7.1+
+- **Language:** TypeScript 5.8+
+- **Styling:** TailwindCSS 4.1+, Vanilla CSS (Variables), `tw-animate-css`
+- **State Management:** Zustand 5.0+ (Global form state and persistence)
+- **Persistence:** LocalStorage and API-based progress tracking
+- **Testing:** Playwright 1.55+ (E2E and Integration testing)
 - **Icons:** Lucide React
-- **UI Components:** Custom components, Radix UI primitives (`@radix-ui/react-slot`), SweetAlert2
-- **Markdown:** Marked
+- **UI Components:** Custom components, Radix UI primitives (`@radix-ui/react-slot`), SweetAlert2 for notifications
+- **Markdown:** Marked (for rendering survey content/instructions)
 - **Linting:** ESLint 9, TypeScript ESLint
 
 ## Project Conventions
 
 ### Code Style
-- **Linting:** strict ESLint configuration with TypeScript support.
-- **Formatting:** Standard Prettier-like formatting (implied).
-- **Naming:** PascalCase for components, camelCase for functions/variables. kaba-case for filenames is not strictly enforced but component files use PascalCase.
+- **Linting:** Strict ESLint configuration.
+- **Formatting:** Standard Prettier-like formatting.
+- **Naming:** 
+  - PascalCase for components and component files (e.g., `MultiScreenForm.tsx`).
+  - camelCase for functions and variables.
+  - kebab-case for utility files and non-component modules (e.g., `email-validation.ts`).
+- **Conditional Classes:** Always use the `clsx` library instead of Astro-style `class:list` or template literals for complex conditional logic.
 
 ### Architecture Patterns
-- **Feature-based & Screen-based:** Components are organized by screens (`src/components/screens`) and reusable UI elements (`src/components/ui`).
-- **State Management:** Global state is managed via Zustand (`src/store`), specifically for handling multi-step form data.
-- **Utilities:** Shared logic resides in `src/lib`.
-- **Assets:** Static resources in `src/assets`.
+- **Screen-based Routing:** Instead of a traditional router, the app uses a state-driven multi-screen approach (`src/components/screens`).
+- **Store-first Logic:** Most business logic and form state reside in the Zustand store (`src/store/formStore.ts`).
+- **API Layer:** Isolated API interaction logic in `src/lib/api`.
+- **Atomic UI:** Small, reusable UI primitives in `src/components/ui`.
 
 ### Styling Strategy
-- **Semantic Color Tokens:** **CRITICAL**. Do not hardcode colors. Use the semantic tokens defined in `BRAND_COLORS.md` and `src/index.css` (e.g., `--primary`, `--secondary`, `--muted`).
-- **Tailwind Integration:** Tailwind is configured to use these CSS variables. Use utility classes like `bg-primary`, `text-foreground`.
-- **Dark Mode:** Fully supported via CSS variables and the `.dark` class.
-- **Typography:** Uses 'ReemKufi' as the primary font family.
+- **Semantic Tokens:** **MANDATORY**. All colors must use CSS variables defined in `src/index.css` and mapped in `BRAND_COLORS.md` (e.g., `--primary`, `--secondary`, `--accent`).
+- **Tailwind v4:** Uses the new `@tailwindcss/vite` plugin.
+- **Responsive:** Mobile-first design using standard Tailwind breakpoints.
+- **Themes:** Light/Dark mode support via the `.dark` class on the root element.
 
 ### Testing Strategy
-- **Playwright:** Used for End-to-End and component testing.
-- **Environment:** Tests run in `local` or `production` modes via `NODE_ENV`.
+- **End-to-End:** Playwright tests cover the entire user journey (invitation -> general data -> questions -> completion).
+- **Persistence Tests:** Specific tests to verify that form state is correctly saved and restored.
+- **Mocking:** API calls are typically mocked or pointed to a local/test environment using `NODE_ENV`.
 
 ### Git Workflow
-- Standard feature-branch workflow.
-- Commit messages should likely follow conventional commits (though not explicitly enforced in config saw so far).
+- **Conventional Commits:** Must follow the Conventional Commits specification (e.g., `feat:`, `fix:`, `chore:`, `docs:`).
 
 ## Domain Context
-- **Invitation System:** Users need a valid invitation code to access the main functionality.
-- **Report Generation:** The core domain is creating reports, likely text-based or structured data reports.
-- **AFT Dashboard:** The parent system this app serves; API interaction handles validation and data exchange.
+- **Invitation System:** A gatekeeping mechanism where a unique code determines which survey a user can access.
+- **Progressive Disclosure:** The form is revealed screen by screen to reduce cognitive load.
+- **Survey Data:** Responses are structured as a collection of answers linked to specific survey identifiers.
+- **AFT Dashboard Integration:** The backend source of truth for surveys, invitation codes, and progress storage.
 
 ## Important Constraints
-- **Brand Identity:** Must strictly adhere to the defined brand colors and typography.
-- **Responsive Design:** Mobile-first approach using Tailwind.
-- **Environment Variables:** Must utilize `VITE_` prefix for any client-side environment variables.
+- **Brand Fidelity:** Strict adherence to the AFT color palette and typography ('ReemKufi').
+- **Accessibility:** Ensure all form inputs have proper labels and ARIA attributes where necessary.
+- **No Direct Store Mutation:** Always use store actions to update state.
+- **Persistence Sanitization:** Data loaded from persistence must be sanitized (e.g., removing extra quotes from string values).
 
 ## External Dependencies
-- **AFT Dashboard API:** `https://aft-dashboard.apps.darideveloper.com/api` (configurable via env).
-- **Fonts:** ReemKufi (local font file).
+- **API URL:** `https://aft-dashboard.apps.darideveloper.com/api` (configurable via `VITE_API_URL`).
+- **Fonts:** 'ReemKufi' (embedded in `public/fonts`).
