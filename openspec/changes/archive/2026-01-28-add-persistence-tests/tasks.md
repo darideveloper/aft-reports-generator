@@ -3,6 +3,6 @@
 - [x] Implement `resume_progress_happy_path` test case in `tests/persistence.test.ts`. `<!-- id: 2 -->`
 - [x] Implement `discard_saved_progress` test case in `tests/persistence.test.ts`. `<!-- id: 3 -->`
 - [x] Implement `cleanup_on_completion` test case in `tests/persistence.test.ts`. `<!-- id: 4 -->`
-- [ ] Run `npm test` to validate all new tests pass. `<!-- id: 5 -->`
+- [x] Run `npm test` to validate all new tests pass. `<!-- id: 5 -->`
 - [x] Fix bug where email is deleted when filling general data fields. `<!-- id: 6 -->`
 - [x] Create `tests/repro_bug.test.ts` with email persistence verification. `<!-- id: 7 -->`
