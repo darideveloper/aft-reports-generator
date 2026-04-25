@@ -1,6 +1,7 @@
 import { create } from 'zustand';
 import { fetchSurvey } from '../lib/api/survey';
 import { saveProgress, type ProgressData } from '../lib/api/progress';
+import { fetchOptions, type FormOptionsResponse } from '../lib/api/options';
 
 export interface Option {
   id: number;
@@ -58,6 +59,7 @@ export interface EmailResponse {
 interface FormStore {
   currentScreen: number;
   survey: Survey | null;
+  formOptions: FormOptionsResponse | null;
   isLoading: boolean;
   error: string | null;
   responses: FormResponse[];
@@ -74,6 +76,7 @@ interface FormStore {
   setEmail: (email: string, name?: string, gender?: string, birthRange?: string, position?: string) => void;
   setGeneralData: (field: 'email' | 'name' | 'gender' | 'birthRange' | 'position', value: string) => void;
   fetchSurveyData: (surveyId: number) => Promise<void>;
+  fetchFormOptions: () => Promise<void>;
   nextScreen: () => void;
   previousScreen: () => void;
   canProceed: () => boolean;
@@ -96,6 +99,7 @@ interface FormStore {
 export const useFormStore = create<FormStore>((set, get) => ({
   currentScreen: 0,
   survey: null,
+  formOptions: null,
   isLoading: false,
   error: null,
   responses: [],
@@ -114,6 +118,18 @@ export const useFormStore = create<FormStore>((set, get) => ({
         error: error instanceof Error ? error.message : 'Failed to fetch survey data',
         isLoading: false
       });
+    }
+  },
+
+  fetchFormOptions: async () => {
+    try {
+      // Don't refetch if we already have options
+      if (get().formOptions) return;
+      
+      const options = await fetchOptions();
+      set({ formOptions: options });
+    } catch (error) {
+      console.error('Failed to fetch form options:', error);
     }
   },
 
