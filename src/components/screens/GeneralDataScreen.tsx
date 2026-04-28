@@ -25,6 +25,7 @@ export const GeneralDataScreen: React.FC<GeneralDataScreenProps> = ({
   const [gender, setGender] = useState(emailResponse?.gender || '')
   const [birthRange, setBirthRange] = useState(emailResponse?.birthRange || '')
   const [position, setPosition] = useState(emailResponse?.position || '')
+  const [department, setDepartment] = useState(emailResponse?.department || '')
   const [error, setError] = useState('')
   const [nameError, setNameError] = useState('')
   const [emailError, setEmailError] = useState('')
@@ -50,17 +51,20 @@ export const GeneralDataScreen: React.FC<GeneralDataScreenProps> = ({
         setBirthRange(emailResponse.birthRange || '')
       if (emailResponse.position !== position)
         setPosition(emailResponse.position || '')
+      if (emailResponse.department !== department)
+        setDepartment(emailResponse.department || '')
       if (emailResponse.email) {
         setIsValid(true)
         setHasValidated(true)
       }
     }
-  }, [emailResponse, email, name, gender, birthRange, position])
+  }, [emailResponse, email, name, gender, birthRange, position, department])
 
   // Dropdown options from store or fallback to empty arrays
   const genderChoices = formOptions?.gender || []
   const birthRangeChoices = formOptions?.birth_range || []
   const positionChoices = formOptions?.position || []
+  const departmentChoices = formOptions?.department || []
 
   const handleValidate = async () => {
     setHasValidated(true)
@@ -190,10 +194,15 @@ export const GeneralDataScreen: React.FC<GeneralDataScreenProps> = ({
       return
     }
 
+    if (!department) {
+      setError('Debes seleccionar tu departamento')
+      return
+    }
+
     setError('')
     setNameError('')
     setEmailError('')
-    setEmail(email, name, gender, birthRange, position)
+    setEmail(email, name, gender, birthRange, position, department)
     onNext()
   }
 
@@ -344,6 +353,19 @@ export const GeneralDataScreen: React.FC<GeneralDataScreenProps> = ({
               if (error) setError('')
             }}
             placeholder='Selecciona tu posición'
+            required
+          />
+
+          <Dropdown
+            id='department'
+            label='Departamento'
+            value={department}
+            options={departmentChoices}
+            onChange={(value) => {
+              setDepartment(value)
+              if (error) setError('')
+            }}
+            placeholder='Selecciona tu departamento'
             required
           />
         </div>

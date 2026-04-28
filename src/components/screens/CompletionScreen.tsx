@@ -49,6 +49,7 @@ export const CompletionScreen: React.FC<CompletionScreenProps> = ({
         gender: emailResponse.gender || '',
         birth_range: emailResponse.birthRange || '',
         position: emailResponse.position || '',
+        department: emailResponse.department || '',
         name: emailResponse.name || '',
         email: emailResponse.email,
       }

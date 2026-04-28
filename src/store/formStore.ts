@@ -54,6 +54,7 @@ export interface EmailResponse {
   gender: string;
   birthRange: string;
   position: string;
+  department: string;
 }
 
 interface FormStore {
@@ -73,8 +74,8 @@ interface FormStore {
   addResponse: (response: FormResponse) => void;
   updateResponse: (questionId: number, optionId: number, answer: string) => void;
   setGuestCode: (guestCode: string) => void;
-  setEmail: (email: string, name?: string, gender?: string, birthRange?: string, position?: string) => void;
-  setGeneralData: (field: 'email' | 'name' | 'gender' | 'birthRange' | 'position', value: string) => void;
+  setEmail: (email: string, name?: string, gender?: string, birthRange?: string, position?: string, department?: string) => void;
+  setGeneralData: (field: 'email' | 'name' | 'gender' | 'birthRange' | 'position' | 'department', value: string) => void;
   fetchSurveyData: (surveyId: number) => Promise<void>;
   fetchFormOptions: () => Promise<void>;
   nextScreen: () => void;
@@ -160,11 +161,11 @@ export const useFormStore = create<FormStore>((set, get) => ({
     set({ guestCodeResponse: { guestCode } });
   },
 
-  setEmail: (email: string, name: string = '', gender: string = '', birthRange: string = '', position: string = '') => {
-    set({ emailResponse: { email, name, gender, birthRange, position } });
+  setEmail: (email: string, name: string = '', gender: string = '', birthRange: string = '', position: string = '', department: string = '') => {
+    set({ emailResponse: { email, name, gender, birthRange, position, department } });
   },
 
-  setGeneralData: (field: 'email' | 'name' | 'gender' | 'birthRange' | 'position', value: string) => {
+  setGeneralData: (field: 'email' | 'name' | 'gender' | 'birthRange' | 'position' | 'department', value: string) => {
     const { emailResponse } = get();
     set({
       emailResponse: {
@@ -173,6 +174,7 @@ export const useFormStore = create<FormStore>((set, get) => ({
         gender: emailResponse?.gender || '',
         birthRange: emailResponse?.birthRange || '',
         position: emailResponse?.position || '',
+        department: emailResponse?.department || '',
         ...emailResponse,
         [field]: value
       }
@@ -336,6 +338,7 @@ export const useFormStore = create<FormStore>((set, get) => ({
       gender: sanitizeString(rawEmailResponse.gender),
       birthRange: sanitizeString(rawEmailResponse.birthRange),
       position: sanitizeString(rawEmailResponse.position),
+      department: sanitizeString(rawEmailResponse.department),
       email: rawEmailResponse.email // Email is typically clean/primary key, but keeping it as is for now.
     } : null;
 

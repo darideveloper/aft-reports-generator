@@ -8,6 +8,7 @@ export interface FormOptionsResponse {
   gender: FormOption[];
   birth_range: FormOption[];
   position: FormOption[];
+  department: FormOption[];
 }
 
 export const fetchOptions = async (): Promise<FormOptionsResponse> => {
