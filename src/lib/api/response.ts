@@ -5,6 +5,7 @@ export const submitSurveyResponse = async (
     gender: string;
     birth_range: string;
     position: string;
+    department: string;
     name: string;
     email: string;
   },
