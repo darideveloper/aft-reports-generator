@@ -50,6 +50,7 @@ test.describe('Persistence Features', () => {
         await page.selectOption('select[id="gender"]', 'Masculino');
         await page.selectOption('select[id="birthRange"]', '1946-1964');
         await page.selectOption('select[id="position"]', 'Director');
+        await page.selectOption('select[id="department"]', 'IT');
 
         await page.fill('input[id="email"]', testEmail);
         // Click Validar
@@ -78,6 +79,7 @@ test.describe('Persistence Features', () => {
                         gender: "\"m\"",
                         birthRange: "\"1981-1996\"",
                         position: "\"director_general\"",
+                        department: "\"it\"",
                     },
                     responses: [],
                     guestCodeResponse: { guestCode: guestCode }
@@ -159,6 +161,7 @@ test.describe('Persistence Features', () => {
         await page.selectOption('select[id="gender"]', 'Masculino');
         await page.selectOption('select[id="birthRange"]', '1946-1964');
         await page.selectOption('select[id="position"]', 'Director');
+        await page.selectOption('select[id="department"]', 'IT');
 
         await page.fill('input[id="email"]', testEmail);
         await page.click('button:has-text("Validar")');
@@ -250,6 +253,7 @@ test.describe('Email Persistence Bug', () => {
         const genderSelect = page.locator('select[id="gender"]');
         const birthRangeSelect = page.locator('select[id="birthRange"]');
         const positionSelect = page.locator('select[id="position"]');
+        const departmentSelect = page.locator('select[id="department"]');
 
         // Step 1: Fill email first
         await emailInput.fill(validEmail);
@@ -279,6 +283,12 @@ test.describe('Email Persistence Bug', () => {
         const emailAfterPosition = await emailInput.inputValue();
         expect(emailAfterPosition).toBe(validEmail);
         console.log(`Email after position select: ${emailAfterPosition}`);
+
+        // Step 5.1: Select department
+        await departmentSelect.selectOption('IT');
+        const emailAfterDepartment = await emailInput.inputValue();
+        expect(emailAfterDepartment).toBe(validEmail);
+        console.log(`Email after department select: ${emailAfterDepartment}`);
 
         // Step 6: Validate email (triggers API call)
         const validateButton = page.locator('button:has-text("Validar")');

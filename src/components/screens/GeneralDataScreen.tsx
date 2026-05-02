@@ -18,13 +18,14 @@ export const GeneralDataScreen: React.FC<GeneralDataScreenProps> = ({
   onNext,
   onPrevious,
 }) => {
-  const { emailResponse, setEmail, setGeneralData, survey, loadSavedProgress } =
+  const { emailResponse, setEmail, survey, loadSavedProgress, formOptions, fetchFormOptions } =
     useFormStore()
   const [email, setLocalEmail] = useState(emailResponse?.email || '')
   const [name, setName] = useState(emailResponse?.name || '')
   const [gender, setGender] = useState(emailResponse?.gender || '')
   const [birthRange, setBirthRange] = useState(emailResponse?.birthRange || '')
   const [position, setPosition] = useState(emailResponse?.position || '')
+  const [department, setDepartment] = useState(emailResponse?.department || '')
   const [error, setError] = useState('')
   const [nameError, setNameError] = useState('')
   const [emailError, setEmailError] = useState('')
@@ -32,6 +33,11 @@ export const GeneralDataScreen: React.FC<GeneralDataScreenProps> = ({
   const [isFetchingProgress, setIsFetchingProgress] = useState(false)
   const [isValid, setIsValid] = useState(false)
   const [hasValidated, setHasValidated] = useState(false)
+
+  // Fetch dynamic options on mount
+  React.useEffect(() => {
+    fetchFormOptions()
+  }, [fetchFormOptions])
 
   // Sync local state when emailResponse changes (e.g., after loading saved progress)
   React.useEffect(() => {
@@ -45,49 +51,20 @@ export const GeneralDataScreen: React.FC<GeneralDataScreenProps> = ({
         setBirthRange(emailResponse.birthRange || '')
       if (emailResponse.position !== position)
         setPosition(emailResponse.position || '')
+      if (emailResponse.department !== department)
+        setDepartment(emailResponse.department || '')
       if (emailResponse.email) {
         setIsValid(true)
         setHasValidated(true)
       }
     }
-  }, [emailResponse])
+  }, [emailResponse, email, name, gender, birthRange, position, department])
 
-  // Dropdown options
-  const GENDER_CHOICES = [
-    { value: 'm', label: 'Masculino' },
-    { value: 'f', label: 'Feminino' },
-    { value: 'o', label: 'Otro' },
-  ]
-
-  const BIRTH_RANGE_CHOICES = [
-    { value: '1946-1964', label: '1946-1964' },
-    { value: '1965-1980', label: '1965-1980' },
-    { value: '1981-1996', label: '1981-1996' },
-    { value: '1997-2012', label: '1997-2012' },
-  ]
-
-  const POSITION_CHOICES = [
-    { value: 'analista', label: 'Analista' },
-    { value: 'asesor', label: 'Asesor' },
-    { value: 'auxiliar', label: 'Auxiliar' },
-    { value: 'contralor', label: 'Contralor' },
-    { value: 'coordinador', label: 'Coordinador' },
-    { value: 'director', label: 'Director' },
-    { value: 'director_general', label: 'Director General' },
-    { value: 'director_general_adjunto', label: 'Director General Adjunto' },
-    { value: 'enlace_informacion', label: 'Enlace de Información' },
-    { value: 'manager', label: 'Gerente' },
-    { value: 'inspector', label: 'Inspector' },
-    { value: 'investigador', label: 'Investigador' },
-    { value: 'jefe_departamento', label: 'Jefe de Departamento' },
-    { value: 'operator', label: 'Operador' },
-    { value: 'secretario_ejecutivo', label: 'Secretario Ejecutivo' },
-    { value: 'subdirector', label: 'Subdirector' },
-    { value: 'subsecretario', label: 'Subsecretario' },
-    { value: 'supervisor', label: 'Supervisor' },
-    { value: 'vicepresidente', label: 'Vicepresidente' },
-    { value: 'other', label: 'Otro' },
-  ]
+  // Dropdown options from store or fallback to empty arrays
+  const genderChoices = formOptions?.gender || []
+  const birthRangeChoices = formOptions?.birth_range || []
+  const positionChoices = formOptions?.position || []
+  const departmentChoices = formOptions?.department || []
 
   const handleValidate = async () => {
     setHasValidated(true)
@@ -217,10 +194,15 @@ export const GeneralDataScreen: React.FC<GeneralDataScreenProps> = ({
       return
     }
 
+    if (!department) {
+      setError('Debes seleccionar tu departamento')
+      return
+    }
+
     setError('')
     setNameError('')
     setEmailError('')
-    setEmail(email, name, gender, birthRange, position)
+    setEmail(email, name, gender, birthRange, position, department)
     onNext()
   }
 
@@ -339,7 +321,7 @@ export const GeneralDataScreen: React.FC<GeneralDataScreenProps> = ({
             id='gender'
             label='Género'
             value={gender}
-            options={GENDER_CHOICES}
+            options={genderChoices}
             onChange={(value) => {
               setGender(value)
               if (error) setError('')
@@ -352,7 +334,7 @@ export const GeneralDataScreen: React.FC<GeneralDataScreenProps> = ({
             id='birthRange'
             label='Rango de Nacimiento'
             value={birthRange}
-            options={BIRTH_RANGE_CHOICES}
+            options={birthRangeChoices}
             onChange={(value) => {
               setBirthRange(value)
               if (error) setError('')
@@ -365,12 +347,25 @@ export const GeneralDataScreen: React.FC<GeneralDataScreenProps> = ({
             id='position'
             label='Posición'
             value={position}
-            options={POSITION_CHOICES}
+            options={positionChoices}
             onChange={(value) => {
               setPosition(value)
               if (error) setError('')
             }}
             placeholder='Selecciona tu posición'
+            required
+          />
+
+          <Dropdown
+            id='department'
+            label='Departamento'
+            value={department}
+            options={departmentChoices}
+            onChange={(value) => {
+              setDepartment(value)
+              if (error) setError('')
+            }}
+            placeholder='Selecciona tu departamento'
             required
           />
         </div>

@@ -90,6 +90,7 @@ test('email_validation_message_shown_after_validate', async ({ page }) => {
   await page.selectOption('select[id="gender"]', 'Masculino');
   await page.selectOption('select[id="birthRange"]', '1946-1964');
   await page.selectOption('select[id="position"]', 'Director');
+  await page.selectOption('select[id="department"]', 'IT');
   await page.fill('input[id="email"]', validEmail);
 
   // Click Validar
@@ -121,6 +122,7 @@ test('email_validation_message_hides_on_email_change', async ({ page }) => {
   await page.selectOption('select[id="gender"]', 'Masculino');
   await page.selectOption('select[id="birthRange"]', '1946-1964');
   await page.selectOption('select[id="position"]', 'Director');
+  await page.selectOption('select[id="department"]', 'IT');
   await page.fill('input[id="email"]', validEmail);
 
   // Click Validar and wait

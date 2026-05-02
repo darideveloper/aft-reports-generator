@@ -69,6 +69,9 @@ export class SurveyPage {
     // Select position
     await this.page.selectOption('select[id="position"]', 'Director')
 
+    // Select department
+    await this.page.selectOption('select[id="department"]', 'IT')
+
     // fill email and validate
     await this.page.fill('input[id="email"]', email)
     await this.page.click('button:has-text("Validar")')

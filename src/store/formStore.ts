@@ -1,6 +1,7 @@
 import { create } from 'zustand';
 import { fetchSurvey } from '../lib/api/survey';
 import { saveProgress, type ProgressData } from '../lib/api/progress';
+import { fetchOptions, type FormOptionsResponse } from '../lib/api/options';
 
 export interface Option {
   id: number;
@@ -53,11 +54,13 @@ export interface EmailResponse {
   gender: string;
   birthRange: string;
   position: string;
+  department: string;
 }
 
 interface FormStore {
   currentScreen: number;
   survey: Survey | null;
+  formOptions: FormOptionsResponse | null;
   isLoading: boolean;
   error: string | null;
   responses: FormResponse[];
@@ -71,9 +74,10 @@ interface FormStore {
   addResponse: (response: FormResponse) => void;
   updateResponse: (questionId: number, optionId: number, answer: string) => void;
   setGuestCode: (guestCode: string) => void;
-  setEmail: (email: string, name?: string, gender?: string, birthRange?: string, position?: string) => void;
-  setGeneralData: (field: 'email' | 'name' | 'gender' | 'birthRange' | 'position', value: string) => void;
+  setEmail: (email: string, name?: string, gender?: string, birthRange?: string, position?: string, department?: string) => void;
+  setGeneralData: (field: 'email' | 'name' | 'gender' | 'birthRange' | 'position' | 'department', value: string) => void;
   fetchSurveyData: (surveyId: number) => Promise<void>;
+  fetchFormOptions: () => Promise<void>;
   nextScreen: () => void;
   previousScreen: () => void;
   canProceed: () => boolean;
@@ -96,6 +100,7 @@ interface FormStore {
 export const useFormStore = create<FormStore>((set, get) => ({
   currentScreen: 0,
   survey: null,
+  formOptions: null,
   isLoading: false,
   error: null,
   responses: [],
@@ -114,6 +119,18 @@ export const useFormStore = create<FormStore>((set, get) => ({
         error: error instanceof Error ? error.message : 'Failed to fetch survey data',
         isLoading: false
       });
+    }
+  },
+
+  fetchFormOptions: async () => {
+    try {
+      // Don't refetch if we already have options
+      if (get().formOptions) return;
+      
+      const options = await fetchOptions();
+      set({ formOptions: options });
+    } catch (error) {
+      console.error('Failed to fetch form options:', error);
     }
   },
 
@@ -144,11 +161,11 @@ export const useFormStore = create<FormStore>((set, get) => ({
     set({ guestCodeResponse: { guestCode } });
   },
 
-  setEmail: (email: string, name: string = '', gender: string = '', birthRange: string = '', position: string = '') => {
-    set({ emailResponse: { email, name, gender, birthRange, position } });
+  setEmail: (email: string, name: string = '', gender: string = '', birthRange: string = '', position: string = '', department: string = '') => {
+    set({ emailResponse: { email, name, gender, birthRange, position, department } });
   },
 
-  setGeneralData: (field: 'email' | 'name' | 'gender' | 'birthRange' | 'position', value: string) => {
+  setGeneralData: (field: 'email' | 'name' | 'gender' | 'birthRange' | 'position' | 'department', value: string) => {
     const { emailResponse } = get();
     set({
       emailResponse: {
@@ -157,6 +174,7 @@ export const useFormStore = create<FormStore>((set, get) => ({
         gender: emailResponse?.gender || '',
         birthRange: emailResponse?.birthRange || '',
         position: emailResponse?.position || '',
+        department: emailResponse?.department || '',
         ...emailResponse,
         [field]: value
       }
@@ -320,6 +338,7 @@ export const useFormStore = create<FormStore>((set, get) => ({
       gender: sanitizeString(rawEmailResponse.gender),
       birthRange: sanitizeString(rawEmailResponse.birthRange),
       position: sanitizeString(rawEmailResponse.position),
+      department: sanitizeString(rawEmailResponse.department),
       email: rawEmailResponse.email // Email is typically clean/primary key, but keeping it as is for now.
     } : null;
 
