@@ -195,7 +195,7 @@ export const GeneralDataScreen: React.FC<GeneralDataScreenProps> = ({
     }
 
     if (!department) {
-      setError('Debes seleccionar tu departamento')
+      setError('Debes seleccionar tu área')
       return
     }
 
@@ -358,14 +358,14 @@ export const GeneralDataScreen: React.FC<GeneralDataScreenProps> = ({
 
           <Dropdown
             id='department'
-            label='Departamento'
+            label='Área'
             value={department}
             options={departmentChoices}
             onChange={(value) => {
               setDepartment(value)
               if (error) setError('')
             }}
-            placeholder='Selecciona tu departamento'
+            placeholder='Selecciona tu área'
             required
           />
         </div>
