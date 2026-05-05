@@ -1,8 +1,7 @@
-# department-field Specification
+# Spec Delta: Department Field
 
-## Purpose
-TBD - created by archiving change add-department-field. Update Purpose after archive.
-## Requirements
+## ADDED Requirements
+
 ### Requirement: Collect Participant Area
 The system MUST collect the participant's area in addition to other general data.
 
@@ -34,4 +33,3 @@ The area field MUST be included in the final survey response submission.
 - **Given** the user has completed all questions
 - **When** the user submits the form
 - **Then** the "department" field MUST be included in the participant data sent to the backend.
-
